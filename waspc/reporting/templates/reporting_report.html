@@ -291,9 +291,6 @@
                 table-layout: fixed;
                 word-wrap: break-word;
             }
-            body {
-                padding-top: 70px;
-            }
         </style>
 
         <title>Reporting System</title>
@@ -302,23 +299,18 @@
     <body>
         <div class="container-fluid">
             <div class="row">
-                <nav class="navbar navbar-default navbar-fixed-top">
-                    <h4 class="text-center text-muted">
-                        <div class="row" id="status-bar">
-                            <div class="col-md-2 text-uppercase">
-                                {{ report_module }}
-                            </div>
-                            <div class="col-md-3">
-                                {{ target_url }}
-                            </div>
-                            <div class="col-md-2">
-                                <button type="button" class="btn btn-success" id="save_changes">Save Changes</button>
-                            </div>
-                            <div class="col-md-5">
-                                Last modified: {{ report_created | date:"Y M d D h:m:s" }}
-                            </div>
+                <nav class="navbar navbar-default">
+                    <div class="row" id="status-bar">
+                        <div class="col-md-2 text-uppercase col-md-offset-2">
+                            <h4 class="text-muted">{{ report_module }}</h4>
                         </div>
-                    </h4>
+                        <div class="col-md-2">
+                            <h4 class="text-muted">{{ target_url }}</h4>
+                        </div>
+                        <div class="col-md-4">
+                            <h4 class="text-muted">Last modified: {{ report_created | date:"Y M d D h:m:s" }}</h4>
+                        </div>
+                    </div>
                 </nav>
             </div>
             <div class="row">
@@ -335,6 +327,11 @@
                 <footer class="footer text-center">
                     <small class="text-muted">Copyright &copy; 2015 WG.</small>
                 </footer>
+            </div>
+            <div class="row">
+                <nav class="navbar navbar-default navbar-fixed-bottom text-center">
+                    <button type="button" class="btn btn-success" id="save_changes">Save Changes</button>
+                </nav>
             </div>
         </div>
     </body>
