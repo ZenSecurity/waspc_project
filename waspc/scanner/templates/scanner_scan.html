@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link href="/static/scanner/css/bootstrap.min.css" rel="stylesheet">
+
+        <script src="/static/scanner/js/jquery-1.11.2.min.js" type="text/javascript"></script>
+        <script src="/static/scanner/js/bootstrap.min.js" type="text/javascript"></script>
+        <script src="/static/scanner/js/mustache.min.js" type="text/javascript"></script>
+        <script src="/static/scanner/js/marked.js" type="text/javascript"></script>
+
+        <script id="vulnerability_panel_template" type="x-tmpl-mustache">
+        {% verbatim %}
+            <div class="panel panel-{{severity_div}}" id="vulnerability-panel-{{vulnerability_panel_index}}">
+                <div class="panel-heading">
+                    <div class="row">
+                        <span class="glyphicon glyphicon-minus col-md-1" aria-hidden="true"></span>
+                        <div class="text-{{severity_div}} text-uppercase col-md-3">
+                            {{vulnerability_severity}} <span class="badge badge-{{severity_div}}">{{vulnerabilities_counter}}</span>
+                        </div>
+                        <div class="col-md-8">{{vulnerability_plugin_name}}</div>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <section>
+                        <h5>Description</h5>
+                        <p>{{{vulnerability_plugin_description}}}</p>
+                    </section>
+                    <table class="table table-condensed table-striped">
+                        <thead>
+                            <tr>
+                                <th class="col-md-1">#</th>
+                                <th class="col-md-11">Issue</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {{#vulnerability_tr}}
+                            <tr>
+                                <th class="col-md-1">{{vulnerability_index}}</th>
+                                <td class="col-md-11">{{{vulnerability_description}}}</td>
+                            </tr>
+                        {{/vulnerability_tr}}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% endverbatim %}
+        </script>
+
+        <script>
+            $(document).ready(function() {
+                var target_url = $("#target-url");
+
+                $("#start-target-url-button").on("click", function() {
+                    start_scan(target_url.val());
+                });
+
+                target_url.on("keydown", function(event){
+                    // key code is "Enter"
+                    if (event.which == 13)
+                        start_scan(target_url.val());
+                });
+
+                var renderer = new marked.Renderer();
+                renderer.heading = function(text, level) {
+                    return '<h5>' + text + '</h5>';
+                };
+                renderer.link = function(href, title, text) {
+                    return '<a href="' + href + '" target="_blank">' + href + '</a>';
+                };
+
+                function start_scan(target_url) {
+                    $("#scan-bar").css("margin-top", 0);
+
+                    var progress_bar = $("#progress-bar");
+                    var scan_status = $("#scan-status");
+                    var exception_message = $("#exception_message");
+
+                    $("#status-bar").removeClass("hidden");
+
+                    if (target_url.length) {
+                        progress_bar.removeClass("hidden");
+                        exception_message.text('');
+                        scan_status.text('Scan has started. Processing for "' + target_url + '" ...');
+
+                        $("div.vulnerabilities").children().each(function() {
+                                this.remove();
+                        });
+
+                        var start_scan_url = (window.location.origin + "/api/scanner/");
+
+                        $.ajax({
+                            url: start_scan_url,
+                            method: "POST",
+                            data: JSON.stringify({"target_url": target_url}),
+                            contentType: "application/json",
+                            dataType: "json"
+                        }).done(function(result_json) {
+                            if (result_json.task_status == "PENDING") {
+                                var timer_id = setInterval(function() {
+                                    var get_scan_results_url = (start_scan_url + result_json.task_id + "/");
+                                    $.get(get_scan_results_url, function(result_json){
+                                        if (result_json.task_status == "SUCCESS") {
+                                            clearInterval(timer_id);
+
+                                            var vulnerability_panel_template = $('#vulnerability_panel_template').html();
+                                            Mustache.parse(vulnerability_panel_template);
+
+                                            var vulnerability_panel_index = 0;
+                                            function add_vulnerability_panel(plugin, vulnerability_severity) {
+                                                var severity_div = null;
+                                                switch (vulnerability_severity) {
+                                                    case "high":
+                                                        severity_div = "danger";
+                                                        break;
+                                                    case "medium":
+                                                        severity_div = "warning";
+                                                        break;
+                                                    case "low":
+                                                        severity_div = "info";
+                                                        break;
+                                                    case "information":
+                                                        severity_div = "default";
+                                                        break;
+                                                }
+
+                                                var template_data = {
+                                                    "severity_div": severity_div,
+                                                    "vulnerability_panel_index": vulnerability_panel_index++,
+                                                    "vulnerability_severity": vulnerability_severity,
+                                                    "vulnerabilities_counter": plugin.vulnerabilities[vulnerability_severity].counter,
+                                                    "vulnerability_plugin_name": plugin_name,
+                                                    "vulnerability_plugin_description": marked(plugin.description, { renderer: renderer }),
+                                                    "vulnerability_tr": []
+                                                };
+
+                                                for (var i = 0, vulnerability_index = 1; i < plugin.vulnerabilities[vulnerability_severity].items.length; i++) {
+                                                    template_data.vulnerability_tr.push({
+                                                        "vulnerability_index": vulnerability_index++,
+                                                        "vulnerability_description": marked(plugin.vulnerabilities[vulnerability_severity].items[i])
+                                                    });
+                                                }
+                                                var output = Mustache.render(vulnerability_panel_template, template_data);
+                                                    $("div." + vulnerability_severity + "-vulnerabilities").append(output);
+                                            }
+
+                                            for (var item in result_json.task_result) {
+                                                var element = result_json.task_result[item];
+                                                var plugin = null;
+                                                var plugin_name = null;
+
+                                                if (typeof(element) == "object") {
+                                                    plugin = element;
+                                                    plugin_name = item;
+
+                                                    if (plugin.vulnerabilities.high.counter) {
+                                                        add_vulnerability_panel(plugin, "high");
+                                                    }
+                                                    if (plugin.vulnerabilities.medium.counter) {
+                                                        add_vulnerability_panel(plugin, "medium");
+                                                    }
+                                                    if (plugin.vulnerabilities.low.counter) {
+                                                        add_vulnerability_panel(plugin, "low");
+                                                    }
+                                                    if (plugin.vulnerabilities.information.counter) {
+                                                        add_vulnerability_panel(plugin, "information");
+                                                    }
+                                                }
+                                            }
+                                            progress_bar.addClass("hidden");
+                                            scan_status.text('Results for "' + target_url + '":');
+                                            $("div.plugin-results").removeClass("hidden");
+
+                                            $("div.panel-heading").on("click", function() {
+                                                var div_panel_body = $(this).next("div.panel-body");
+                                                var glyphicon = $(this).find("span.glyphicon");
+
+                                                if (div_panel_body.hasClass("hide")) {
+                                                    glyphicon.removeClass("glyphicon-plus");
+                                                    glyphicon.addClass("glyphicon-minus");
+                                                    div_panel_body.removeClass("hide");
+                                                }
+                                                else {
+                                                    glyphicon.removeClass("glyphicon-minus");
+                                                    glyphicon.addClass("glyphicon-plus");
+                                                    div_panel_body.addClass("hide");
+                                                }
+                                            });
+                                        }
+                                        else if (result_json.task_status == "FAILURE") {
+                                            clearInterval(timer_id);
+                                            progress_bar.addClass("hidden");
+                                            scan_status.text('Scan for "' + target_url + '" has failed.');
+                                            exception_message.text(result_json.task_result);
+                                        }
+                                    });
+                                }, 500);
+                            }
+                        });
+                    }
+                }
+            });
+        </script>
+
+        <style>
+            div#scan-bar {
+                margin-top: 20%;
+            }
+            div#progressbar-indicator {
+                width: 100%;
+            }
+            div.panel-heading {
+                cursor: pointer;
+            }
+            table {
+                table-layout: fixed;
+                word-wrap: break-word;
+            }
+        </style>
+
+        <title>Web Application Security Policy Checker</title>
+    </head>
+
+    <body>
+        <div class="container-fluid">
+            <div class="row">
+                <nav class="navbar navbar-default">
+                    <h1 class="text-center text-muted">Web Application Security Policy Checker</h1>
+                </nav>
+            </div>
+            <div class="row" id="scan-bar">
+                <div class="col-md-8 col-md-offset-2">
+                    <div class="row">
+                        <div class="input-group">
+                            <input type="text" id="target-url" class="form-control" placeholder="<http | https>://example.com" autofocus>
+                            <span class="input-group-btn">
+                                <button class="btn btn-success" id="start-target-url-button">
+                                    <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+                                </button>
+                            </span>
+                        </div>
+                        <hr>
+                        <div class="hidden" id="status-bar">
+                            <div class="progress hidden" id="progress-bar">
+                                <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" id="progressbar-indicator"></div>
+                            </div>
+                            <h4 class="text-center" id="scan-status"></h4>
+                            <div class="text-left" id="exception_message"></div>
+                            <hr>
+                        </div>
+                    </div>
+                    <div class="row hidden plugin-results">
+                        <div class="vulnerabilities high-vulnerabilities"></div>
+                        <div class="vulnerabilities medium-vulnerabilities"></div>
+                        <div class="vulnerabilities low-vulnerabilities"></div>
+                        <div class="vulnerabilities information-vulnerabilities"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <footer class="footer text-center">
+                    <small class="text-muted">Copyright &copy; 2015 WG.</small>
+                </footer>
+            </div>
+        </div>
+    </body>
+
+</html>

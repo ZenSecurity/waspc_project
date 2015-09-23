@@ -1,0 +1,23 @@
+# Bleeding edge Django
+django
+
+# For periodic tasks
+django-celery
+
+# JSON field support
+django-jsonfield
+
+# For building rest api
+djangorestframework
+
+# Scanner core
+https://github.com/ZenSecurity/w3af-module/tarball/master#egg=w3af
+
+# For the w3af monkey patching
+mock
+
+# For the persistence stores
+psycopg2
+
+# Redis support
+redis

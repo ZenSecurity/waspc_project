@@ -1,0 +1,24 @@
+### OSX ###
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Basics
+*.py[cod]
+*.pyc
+__pycache__
+
+# Logs
+*.log
+pip-log.txt
+
+# Pycharm
+.idea
+
+# Vim
+*~
+*.swp
+*.swo
+
+# virtual environments
+.env

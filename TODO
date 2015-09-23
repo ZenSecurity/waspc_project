@@ -1,0 +1,9 @@
+1) demonizing http://celery.readthedocs.org/en/latest/tutorials/daemonizing.html#daemonizing
+2) Need to apply patch:
+    # in w3af.core.controllers.w3afCore:
+    #
+    #     except ScanMustStopException, wmse:
+    #         error = '\n**IMPORTANT** The following error was detected by'\
+    #                 ' w3af and couldn\'t be resolved:\n%s\n' % wmse
+    #         om.out.error(error)
+    # -->     raise

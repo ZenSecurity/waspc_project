@@ -1,0 +1,20 @@
+## basic build dependencies of various Django apps for Ubuntu 
+# build-essential metapackage install: make, gcc, g++, 
+build-essential
+python-dev
+
+# need for https://pypi.python.org/pypi/cffi
+libffi-dev
+
+# need for https://pypi.python.org/pypi/lxml
+libxslt1-dev
+
+## Rabbit MQ
+rabbitmq-server
+
+## Redis
+redis-server
+
+## Postgresql and psycopg2 dependencies
+postgresql
+libpq-dev
