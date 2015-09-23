@@ -126,7 +126,6 @@ To run a celery worker:
 
 .. code-block:: bash
 
-    $(venv) cd waspc
-    $(venv) celery -A waspc.taskapp worker -l info
+    $(venv) python manage.py celery worker -P processes -B -l INFO
 
 Please note: For Celerys import magic to work, it is important *where* the celery commands are run. If you are in the same folder with *manage.py*, you should be right.
