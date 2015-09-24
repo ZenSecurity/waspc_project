@@ -112,7 +112,7 @@
                             "severity_name": severity,
                             "incidents_counter": category_data[severity].length,
                             "category_name": category_name,
-                            "category_description": marked(category_metadata.description, {renderer: renderer}),
+                            "category_description": category_metadata.description,
                             "incidents": function () {
                                 var incidents = [];
                                 for (var i = 0, incident_index = 1; i < category_data[severity].length; i++) {
@@ -168,8 +168,10 @@
                     var report_data = report["data"];
                     for (var category in report_data) {
                         for (var severity in report_data[category]) {
+                            var incident_description_div = document.createElement("div");
                             for (var description in report_data[category][severity]) {
-                                if (incident_description == report_data[category][severity][description].data){
+                                incident_description_div.innerHTML = report_data[category][severity][description].data;
+                                if (incident_description == incident_description_div.innerHTML){
                                     return report_data[category][severity][description];
                                 }
                             }
