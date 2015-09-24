@@ -21,4 +21,4 @@ pip-log.txt
 *.swo
 
 # virtual environments
-.env
+venv

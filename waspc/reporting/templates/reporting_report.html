@@ -224,14 +224,14 @@
                         $(ticket_url).attr("disabled", true);
                     }
 
-                    var incident_description = $(this.parentNode.parentNode).children("[class*='incident_description']")[0].textContent;
+                    var incident_description = $(this.parentNode.parentNode).children("[class*='incident_description']")[0].innerHTML;
                     var incident_element = find_incident_element(report, incident_description);
                     incident_element.metadata = incident_element.metadata || {};
                     incident_element.metadata.status = incident_status;
                 });
 
                 $("button[class*=mark_all_false]").on("click", function() {
-                    var incidents_category = $(this.parentNode.parentNode.parentNode.parentNode).find("[class*='category_name']")[0].textContent;
+                    var incidents_category = $(this.parentNode.parentNode.parentNode.parentNode).find("[class*='category_name']")[0].innerHTML;
                     var report_data = report.data;
                     for (var category in report_data) {
                         if (incidents_category == category) {
@@ -275,7 +275,7 @@
                 });
 
                 $("textarea").on("change", function () {
-                    var incident_description = $(this.parentNode.parentNode).children("[class*='incident_description']")[0].textContent;
+                    var incident_description = $(this.parentNode.parentNode).children("[class*='incident_description']")[0].innerHTML;
                     var incident_element = find_incident_element(report, incident_description);
                     incident_element.metadata = incident_element.metadata || {};
                     incident_element.metadata.ticket = this.value;
