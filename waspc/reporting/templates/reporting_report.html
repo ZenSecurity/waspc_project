@@ -146,7 +146,7 @@
 
                                     incidents.push({
                                         "incident_index": incident_index++,
-                                        "incident_description": category_data[severity][i].data,
+                                        "incident_description": marked(category_data[severity][i].data, {renderer: renderer}),
                                         "incident_open_selected": incident_open_selected,
                                         "incident_in_progress_selected": incident_in_progress_selected,
                                         "incident_close_selected": incident_close_selected,
