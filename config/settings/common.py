@@ -25,8 +25,13 @@ SECRET_KEY = '0=+cssh#wvl&te(_u_!*ld#i)@r_1=k-xz9m^$0#3e$r4g4ss%'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['waspc']
 
+MIGRATION_MODULES = {
+    'sites': 'waspc.contrib.sites.migrations'
+}
+
+ALLOWED_HOSTS = ['.zensecurity.su']
+SITE_ID = 0
 
 # Application definition
 
@@ -35,10 +40,11 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
-    'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles',
     'django.contrib.postgres',
+    'django.contrib.sessions',
+    'django.contrib.sites',
+    'django.contrib.staticfiles',
 
     # Third party
     'rest_framework',
