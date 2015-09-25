@@ -17,14 +17,16 @@ class ReportTemplateView(TemplateView):
 
     def get(self, request, *args, **kwargs):
         report_id = kwargs.get('pk')
+        context = {}
 
         if ScanReport.objects.filter(id=report_id).exists():
             report = ScanReport.objects.get(id=report_id)
-            return self.render_to_response({
+            context = {
                 'target_url': report.target_url,
                 'report': json_dumps(report.result),
                 'created': report.modified
-            })
+            }
+        return self.render_to_response(context)
 
 
 class ReportViewSet(ModelViewSet):

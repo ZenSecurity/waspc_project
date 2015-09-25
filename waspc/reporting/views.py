@@ -143,6 +143,7 @@ class ReportTemplateView(TemplateView):
 
     def get(self, request, *args, **kwargs):
         report_id = kwargs.get('pk')
+        context = {}
 
         if Report.objects.filter(id=report_id).exists():
             report = Report.objects.get(id=report_id)
@@ -154,7 +155,7 @@ class ReportTemplateView(TemplateView):
                 report_url = broker_reports.latest().report_url
                 current_report_url = report_url if report_url != report.report_url else None
 
-            return self.render_to_response({
+            context = {
                 'report': json_dumps(report.report),
                 'report_created': report.modified,
                 'target_url': report.report['metadata']['target_url'],
@@ -165,7 +166,8 @@ class ReportTemplateView(TemplateView):
                     viewname='api:reporting-list',
                     request=request
                 )
-            })
+            }
+        return self.render_to_response(context)
 
 
 class ReportViewSet(ModelViewSet):
