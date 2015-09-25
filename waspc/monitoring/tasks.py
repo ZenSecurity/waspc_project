@@ -29,7 +29,7 @@ class PeriodicScanner(Scanner):
         monitor_report = monitor.report
         monitor_report.target_url = target_url
         monitor_report.result_url = reverse(
-            viewname='report-view',
+            viewname='api:reporting:report',
             args=[monitor_report.pk]
         )
         monitor_report.save()

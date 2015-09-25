@@ -2,8 +2,7 @@ from .models import ScanReport
 from .serializers import ScanReportSerializer, ScannerSerializer
 from config.celery import waspc_celery
 from django.views.generic import TemplateView
-from rest_framework.generics import RetrieveAPIView
-from rest_framework.renderers import TemplateHTMLRenderer, JSONRenderer
+from json import dumps as json_dumps
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.status import (HTTP_200_OK,
@@ -13,22 +12,19 @@ from rest_framework.status import (HTTP_200_OK,
 from rest_framework.viewsets import ModelViewSet
 
 
-class ReportRetrieveAPIView(RetrieveAPIView):
-    serializer_class = ScanReportSerializer
-    queryset = ScanReport.objects.all()
-    renderer_classes = (TemplateHTMLRenderer,)
+class ReportTemplateView(TemplateView):
+    template_name = 'report.html'
 
     def get(self, request, *args, **kwargs):
-        instance = self.get_object()
+        report_id = kwargs.get('pk')
 
-        return Response(
-            data={
-                'target_url': instance.target_url,
-                'report': JSONRenderer().render(instance.result),
-                'created': instance.modified
-            },
-            template_name='scanner_report.html'
-        )
+        if ScanReport.objects.filter(id=report_id).exists():
+            report = ScanReport.objects.get(id=report_id)
+            return self.render_to_response({
+                'target_url': report.target_url,
+                'report': json_dumps(report.result),
+                'created': report.modified
+            })
 
 
 class ReportViewSet(ModelViewSet):
@@ -37,7 +33,12 @@ class ReportViewSet(ModelViewSet):
 
 
 class ScannerTemplateView(TemplateView):
-    template_name = 'scanner_scan.html'
+    template_name = 'scanner.html'
+
+    def get(self, request, *args, **kwargs):
+        return self.render_to_response({
+            'scanner_url': reverse(viewname='api:scanner-list', request=request)
+        })
 
 
 class ScannerViewSet(ModelViewSet):
@@ -104,7 +105,7 @@ class ScannerViewSet(ModelViewSet):
                     result=task_report
                 )
                 scan_report.result_url = reverse(
-                    viewname='report-detail',
+                    viewname='scanner:report',
                     args=[scan_report.pk],
                     request=request
                 )

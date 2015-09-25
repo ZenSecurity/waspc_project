@@ -2,9 +2,9 @@ from .models import Notification, Report
 from .serializers import (ReportSerializer,
                           LogstashReportSerializer,
                           NotificationSerializer)
+from django.views.generic import TemplateView
+from json import dumps as json_dumps
 from operator import itemgetter
-from rest_framework.generics import RetrieveAPIView
-from rest_framework.renderers import TemplateHTMLRenderer, JSONRenderer
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.status import HTTP_201_CREATED
@@ -138,6 +138,36 @@ def get_report_severity(report):
     return report_severity_value
 
 
+class ReportTemplateView(TemplateView):
+    template_name = 'reporting.html'
+
+    def get(self, request, *args, **kwargs):
+        report_id = kwargs.get('pk')
+
+        if Report.objects.filter(id=report_id).exists():
+            report = Report.objects.get(id=report_id)
+            broker_reports = Report.objects.filter(
+                broker=report.broker
+            )
+            current_report_url = None
+            if broker_reports.exists():
+                report_url = broker_reports.latest().report_url
+                current_report_url = report_url if report_url != report.report_url else None
+
+            return self.render_to_response({
+                'report': json_dumps(report.report),
+                'report_created': report.modified,
+                'target_url': report.report['metadata']['target_url'],
+                'report_module': report.report['metadata']['module'],
+                'report_broker': report.broker,
+                'current_report_url': current_report_url,
+                'reporting_url': reverse(
+                    viewname='api:reporting-list',
+                    request=request
+                )
+            })
+
+
 class ReportViewSet(ModelViewSet):
     serializer_class = ReportSerializer
     queryset = Report.objects.all()
@@ -178,7 +208,7 @@ class ReportViewSet(ModelViewSet):
                 report=result_report
             )
             broker_notification_report.report_url = reverse(
-                viewname='report-view',
+                viewname='api:reporting:report',
                 args=[broker_notification_report.pk],
                 request=request
             )
@@ -200,37 +230,4 @@ class ReportViewSet(ModelViewSet):
         return Response(
             data=request_data,
             status=HTTP_201_CREATED,
-        )
-
-
-class ReportRetrieveAPIView(RetrieveAPIView):
-    serializer_class = Report
-    queryset = Report.objects.all()
-    renderer_classes = (TemplateHTMLRenderer,)
-
-    def get(self, request, *args, **kwargs):
-        report = self.get_object()
-
-        broker_reports = Report.objects.filter(
-            broker=report.broker
-        )
-        current_report_url = None
-        if broker_reports.exists():
-            report_url = broker_reports.latest().report_url
-            current_report_url = report_url if report_url != report.report_url else None
-
-        return Response(
-            data={
-                'report': JSONRenderer().render(report.report),
-                'report_created': report.modified,
-                'target_url': report.report['metadata']['target_url'],
-                'report_module': report.report['metadata']['module'],
-                'report_broker': report.broker,
-                'current_report_url': current_report_url,
-                'reporting_url': reverse(
-                    viewname='report-list',
-                    request=request
-                )
-            },
-            template_name='reporting_report.html'
         )

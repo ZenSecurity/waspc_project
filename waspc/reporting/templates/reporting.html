@@ -166,9 +166,10 @@
 
                 function find_incident_element(report, incident_description) {
                     var report_data = report["data"];
+                    var incident_description_div = document.createElement("div");
+
                     for (var category in report_data) {
                         for (var severity in report_data[category]) {
-                            var incident_description_div = document.createElement("div");
                             for (var description in report_data[category][severity]) {
                                 incident_description_div.innerHTML = report_data[category][severity][description].data;
                                 if (incident_description == incident_description_div.innerHTML){
@@ -177,7 +178,6 @@
                             }
                         }
                     }
-
                 }
 
                 report = {{ report | safe }};
@@ -292,6 +292,9 @@
             table {
                 table-layout: fixed;
                 word-wrap: break-word;
+            }
+            button#save_changes {
+                margin-top: 0.5%;
             }
         </style>
 

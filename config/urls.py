@@ -15,19 +15,24 @@ Including another URLconf
 """
 from django.conf.urls import include, url
 from django.contrib import admin
-from waspc.monitoring.urls import monitor_router
-from waspc.reporting.urls import (notification_router,
-                                  report_router,
-                                  report_view_url)
-from waspc.scanner.views import ScannerTemplateView
-from waspc.scanner.urls import scanner_report_url, scanner_router
+from rest_framework.routers import DefaultRouter
+from waspc.monitoring.views import MonitorViewSet
+from waspc.reporting.views import NotificationViewSet
+from waspc.reporting.views import ReportViewSet
+from waspc.reporting.urls import urlpatterns as reporting_urlpatterns
+from waspc.scanner.views import ScannerViewSet
+from waspc.scanner.urls import urlpatterns as scanner_urlpatterns
 
+
+api_router = DefaultRouter()
+api_router.register(r'monitoring', MonitorViewSet, 'monitoring')
+api_router.register(r'notification', NotificationViewSet, 'notification')
+api_router.register(r'reporting', ReportViewSet, 'reporting')
+api_router.register(r'scanner', ScannerViewSet, 'scanner')
 
 urlpatterns = [
-    url(r'^$', ScannerTemplateView.as_view()),
     url(r'^admin/', include(admin.site.urls)),
-    # url(r'^api/', include(monitor_router.urls + scanner_router.urls)),
-    url(r'^api/', include(monitor_router.urls + report_router.urls + notification_router.urls)),
-    # url(r'', include(scanner_report_url)),
-    url(r'', include(report_view_url))
+    url(r'^api/', include(api_router.urls, namespace='api')),
+    url(r'^scanner/', include(scanner_urlpatterns, namespace='scanner')),
+    url(r'^reporting/', include(reporting_urlpatterns, namespace='reporting'))
 ]

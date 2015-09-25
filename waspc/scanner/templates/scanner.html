@@ -92,7 +92,7 @@
                                 this.remove();
                         });
 
-                        var start_scan_url = (window.location.origin + "/api/scanner/");
+                        var start_scan_url = "{{ scanner_url }}";
 
                         $.ajax({
                             url: start_scan_url,
