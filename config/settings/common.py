@@ -31,7 +31,7 @@ MIGRATION_MODULES = {
 }
 
 ALLOWED_HOSTS = ['.zensecurity.su']
-SITE_ID = 0
+SITE_ID = 1
 
 # Application definition
 

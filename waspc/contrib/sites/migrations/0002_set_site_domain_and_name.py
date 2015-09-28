@@ -12,7 +12,7 @@ def update_site_forward(apps, schema_editor):
         id=settings.SITE_ID,
         defaults={
             "domain": "lab.zensecurity.su",
-            "name": "waspc"
+            "name": "lab.zensecurity.su"
         }
     )
 
