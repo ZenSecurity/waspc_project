@@ -1,6 +1,7 @@
 from .models import ScanReport
 from .serializers import ScanReportSerializer, ScannerSerializer
 from config.celery import waspc_celery
+from django.contrib.sites.models import Site
 from django.views.generic import TemplateView
 from json import dumps as json_dumps
 from rest_framework.response import Response
@@ -10,6 +11,7 @@ from rest_framework.status import (HTTP_200_OK,
                                    HTTP_202_ACCEPTED,
                                    HTTP_500_INTERNAL_SERVER_ERROR)
 from rest_framework.viewsets import ModelViewSet
+from urlparse import urljoin
 
 
 class ReportTemplateView(TemplateView):
@@ -106,8 +108,9 @@ class ScannerViewSet(ModelViewSet):
                     status=HTTP_500_INTERNAL_SERVER_ERROR
                 )
             else:
+                scanner_domain = Site.objects.get_current().domain
                 scan_report = ScanReport(
-                    target_url=task_target_url,
+                    target_url=urljoin('http://{}'.format(scanner_domain), task_target_url),
                     result=task_report
                 )
                 scan_report.result_url = reverse(

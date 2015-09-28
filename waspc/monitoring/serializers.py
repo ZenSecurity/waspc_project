@@ -46,7 +46,7 @@ class MonitorSerializer(ModelSerializer):
                 'expires': interval_schedule.schedule.run_every.seconds
             }),
             interval=interval_schedule,
-            queue="monitoring"
+            queue='monitoring'
         )
 
         monitor = Monitor.objects.create(
