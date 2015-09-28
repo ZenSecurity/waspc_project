@@ -45,5 +45,6 @@ class Monitoring(Task):
         waspc_celery.send_task(
             name='PeriodicScanner',
             args=[target_url],
+            queue="scanner",
             expires=expires
         )

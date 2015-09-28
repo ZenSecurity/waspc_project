@@ -126,6 +126,6 @@ To run a celery worker:
 
 .. code-block:: bash
 
-    $(venv) python manage.py celery worker -P processes -B -l INFO
+    $(venv) python manage.py celery worker -P processes -Q scanner,monitoring -l INFO -B
 
 Please note: For Celerys import magic to work, it is important *where* the celery commands are run. If you are in the same folder with *manage.py*, you should be right.

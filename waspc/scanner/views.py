@@ -53,7 +53,11 @@ class ScannerViewSet(ModelViewSet):
 
         target_url = serializer.data.get('target_url')
 
-        task_id = waspc_celery.send_task('Scanner', args=[target_url]).id
+        task_id = waspc_celery.send_task(
+            name='Scanner',
+            args=[target_url],
+            queue='scanner'
+        ).id
         task_status = waspc_celery.AsyncResult(task_id).status
 
         headers = self.get_success_headers(serializer.data)

@@ -1,10 +1,10 @@
 from .models import (IntervalSchedule,
                      Monitor,
                      PeriodicTask)
+from ..scanner.serializers import ScanReportSerializer
 from django.conf import settings
 from json import dumps as json_dumps, loads as json_loads
 from rest_framework.serializers import ModelSerializer
-from ..scanner.serializers import ScanReportSerializer
 
 
 class IntervalScheduleSerializer(ModelSerializer):
@@ -45,7 +45,8 @@ class MonitorSerializer(ModelSerializer):
                 'target_url': target_url,
                 'expires': interval_schedule.schedule.run_every.seconds
             }),
-            interval=interval_schedule
+            interval=interval_schedule,
+            queue="monitoring"
         )
 
         monitor = Monitor.objects.create(
