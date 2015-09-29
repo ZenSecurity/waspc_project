@@ -108,16 +108,17 @@ class ScannerViewSet(ModelViewSet):
                     status=HTTP_500_INTERNAL_SERVER_ERROR
                 )
             else:
-                scanner_domain = Site.objects.get_current().domain
                 scan_report = ScanReport(
-                    target_url=urljoin('http://{}'.format(scanner_domain), task_target_url),
+                    target_url=task_target_url,
                     result=task_report
                 )
-                scan_report.result_url = reverse(
+                report_path = reverse(
                     viewname='scanner:report',
                     args=[scan_report.pk],
                     request=request
                 )
+                scanner_domain = Site.objects.get_current().domain
+                scan_report.result_url = urljoin('http://{}'.format(scanner_domain), report_path)
                 scan_report.save()
 
                 return Response(
