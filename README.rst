@@ -26,8 +26,8 @@ Install
     $ sudo port install postgresql95-server rabbitmq-server redis git py27-pip py27-virtualenv libyaml
     # OSX, end
 
-    $ git clone https://github.com/ZenSecurity/waspc.git
-    $ cd waspc
+    $ git clone https://github.com/ZenSecurity/waspc_project.git
+    $ cd waspc_project
 
     # Ubuntu, begin
     $ sudo ./install_os_dependencies.sh install
@@ -127,5 +127,3 @@ To run a celery worker:
 .. code-block:: bash
 
     $(venv) python manage.py celery worker -P processes -Q scanner,monitoring -l INFO -B
-
-Please note: For Celerys import magic to work, it is important *where* the celery commands are run. If you are in the same folder with *manage.py*, you should be right.
