@@ -4,10 +4,15 @@ from .models import (IntervalSchedule,
 from ..scanner.serializers import ScanReportSerializer
 from django.conf import settings
 from json import dumps as json_dumps, loads as json_loads
-from rest_framework.serializers import ModelSerializer
+from rest_framework.serializers import (CharField,
+                                        IntegerField,
+                                        ModelSerializer,
+                                        UUIDField)
 
 
 class IntervalScheduleSerializer(ModelSerializer):
+    every = IntegerField(initial=settings.WASPC['monitoring']['every'])
+    period = CharField(initial=settings.WASPC['monitoring']['period'])
 
     class Meta:
         model = IntervalSchedule
@@ -23,6 +28,7 @@ class PeriodicTaskSerializer(ModelSerializer):
 
 
 class MonitorSerializer(ModelSerializer):
+    id = UUIDField(read_only=True)
     periodic_task = PeriodicTaskSerializer(required=False)
     report = ScanReportSerializer(required=False)
 
@@ -34,8 +40,8 @@ class MonitorSerializer(ModelSerializer):
         scan_interval = validated_data.get('periodic_task', {}).get('interval', {})
 
         interval_schedule, interval_schedule_created = IntervalSchedule.objects.get_or_create(
-            every=scan_interval.get('every', settings.WASPC['monitoring']['default']['every']),
-            period=scan_interval.get('period', settings.WASPC['monitoring']['default']['period'])
+            every=scan_interval.get('every', settings.WASPC['monitoring']['every']),
+            period=scan_interval.get('period', settings.WASPC['monitoring']['period'])
         )
 
         periodic_task = PeriodicTask.objects.create(
@@ -60,8 +66,8 @@ class MonitorSerializer(ModelSerializer):
 
         if scan_interval:
             interval_schedule, interval_schedule_created = IntervalSchedule.objects.get_or_create(
-                every=scan_interval.get('every', settings.WASPC['monitoring']['default']['every']),
-                period=scan_interval.get('period', settings.WASPC['monitoring']['default']['period'])
+                every=scan_interval.get('every', settings.WASPC['monitoring']['every']),
+                period=scan_interval.get('period', settings.WASPC['monitoring']['period'])
             )
 
             monitor_periodic_task = monitor.periodic_task

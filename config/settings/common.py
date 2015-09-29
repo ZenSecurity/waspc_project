@@ -172,12 +172,11 @@ REST_FRAMEWORK = {
 
 WASPC = {
     'scanner': {
-        'profile_name': 'wg'
+        'profile_name': 'wg',
+        'target_url': 'http://zensecurity.su'
     },
     'monitoring': {
-        'default': {
-            'every': 15,
-            'period': 'minutes'
-        }
+        'every': 15,
+        'period': 'minutes'
     }
 }
