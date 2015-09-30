@@ -4,7 +4,9 @@ from .models import (Monitor,
 from ..scanner.tasks import Scanner
 from celery import Task
 from config.celery import waspc_celery
+from django.contrib.sites.models import Site
 from rest_framework.reverse import reverse
+from urlparse import urljoin
 
 
 class PeriodicScanner(Scanner):
@@ -28,10 +30,12 @@ class PeriodicScanner(Scanner):
         )
         monitor_report = monitor.report
         monitor_report.target_url = target_url
-        monitor_report.result_url = reverse(
+        scanner_domain = Site.objects.get_current().domain
+        report_path = reverse(
             viewname='scanner:report',
             args=[monitor_report.pk]
         )
+        monitor_report.result_url = urljoin('http://{}'.format(scanner_domain), report_path)
         monitor_report.save()
 
         monitor.save()
