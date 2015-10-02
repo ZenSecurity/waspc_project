@@ -4,7 +4,7 @@ from django.utils.html import format_html
 
 
 class NotificationAdmin(admin.ModelAdmin):
-    readonly_fields = ('id', 'report')
+    readonly_fields = ('id', 'report', 'modified')
     search_fields = ('id',)
 
 
