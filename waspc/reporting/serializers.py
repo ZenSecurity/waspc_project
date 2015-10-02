@@ -1,10 +1,16 @@
 from .models import Notification, Report
-from rest_framework.serializers import (ModelSerializer,
+from rest_framework.serializers import (CharField,
+                                        ModelSerializer,
+                                        ReadOnlyField,
                                         Serializer,
-                                        ValidationError)
+                                        ValidationError,
+                                        UUIDField)
 
 
 class ReportSerializer(ModelSerializer):
+    id = UUIDField(read_only=True)
+    broker = CharField(read_only=True)
+    report = ReadOnlyField(read_only=True)
 
     class Meta:
         model = Report
@@ -32,6 +38,7 @@ class LogstashReportSerializer(Serializer):
 
 
 class NotificationSerializer(ModelSerializer):
+    id = UUIDField(read_only=True)
     report = ReportSerializer()
 
     class Meta:

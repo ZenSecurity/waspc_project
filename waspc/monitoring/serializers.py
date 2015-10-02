@@ -11,8 +11,12 @@ from rest_framework.serializers import (CharField,
 
 
 class IntervalScheduleSerializer(ModelSerializer):
-    every = IntegerField(initial=settings.WASPC['monitoring']['every'])
-    period = CharField(initial=settings.WASPC['monitoring']['period'])
+    every = IntegerField(
+        initial=settings.WASPC['monitoring']['every'],
+    )
+    period = CharField(
+        initial=settings.WASPC['monitoring']['period'],
+    )
 
     class Meta:
         model = IntervalSchedule
@@ -29,7 +33,7 @@ class PeriodicTaskSerializer(ModelSerializer):
 
 class MonitorSerializer(ModelSerializer):
     id = UUIDField(read_only=True)
-    periodic_task = PeriodicTaskSerializer(required=False)
+    periodic_task = PeriodicTaskSerializer()
     report = ScanReportSerializer(required=False)
 
     class Meta:
