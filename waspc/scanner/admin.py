@@ -4,8 +4,8 @@ from django.utils.html import format_html
 
 
 class ScannerAdmin(admin.ModelAdmin):
-    fields = ('id', 'target_url_link', 'result', 'result_url_link')
-    readonly_fields = ('id', 'target_url_link', 'result_url', 'result_url_link')
+    fields = ('id', 'target_url_link', 'result', 'result_url_link', 'modified')
+    readonly_fields = ('id', 'target_url_link', 'result_url', 'result_url_link', 'modified')
     search_fields = ('id',)
 
     def result_url_link(self, instance):
