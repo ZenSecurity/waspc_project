@@ -5,6 +5,7 @@ from rest_framework.serializers import (CharField,
                                         ReadOnlyField,
                                         Serializer,
                                         ValidationError,
+                                        URLField,
                                         UUIDField)
 
 
@@ -12,11 +13,11 @@ class ReportSerializer(ModelSerializer):
     id = UUIDField(read_only=True)
     broker = CharField(read_only=True)
     report = ReadOnlyField(read_only=True)
+    report_url = URLField(read_only=True)
     modified = DateTimeField(read_only=True)
 
     class Meta:
         model = Report
-        fields = ('id', 'broker', 'report', 'report_url')
 
     def validate_report(self, report):
         if 'data' not in report or 'metadata' not in report:
@@ -41,8 +42,9 @@ class LogstashReportSerializer(Serializer):
 
 class NotificationSerializer(ModelSerializer):
     id = UUIDField(read_only=True)
+    severity = CharField(read_only=True)
     report = ReportSerializer()
+    modified = DateTimeField(read_only=True)
 
     class Meta:
         model = Notification
-        fields = ('id', 'severity', 'report', 'modified')
