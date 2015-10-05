@@ -1,5 +1,6 @@
 from .models import Notification, Report
 from rest_framework.serializers import (CharField,
+                                        DateTimeField,
                                         ModelSerializer,
                                         ReadOnlyField,
                                         Serializer,
@@ -11,6 +12,7 @@ class ReportSerializer(ModelSerializer):
     id = UUIDField(read_only=True)
     broker = CharField(read_only=True)
     report = ReadOnlyField(read_only=True)
+    modified = DateTimeField(read_only=True)
 
     class Meta:
         model = Report
