@@ -188,9 +188,9 @@ class ReportViewSet(ModelViewSet):
         serializer = LogstashReportSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        request_data = request.data['message']
+        message = serializer.data.get('message')
 
-        for report in request_data:
+        for report in message:
             broker = report['broker']
             new_report = report['report']
 
@@ -240,6 +240,6 @@ class ReportViewSet(ModelViewSet):
                 )
 
         return Response(
-            data=request_data,
+            data=message,
             status=HTTP_201_CREATED,
         )

@@ -1,7 +1,7 @@
 from .models import (IntervalSchedule,
                      Monitor,
                      PeriodicTask)
-from ..scanner.serializers import ScanReportSerializer
+from ..scanner.serializers import ScannerSerializer
 from django.conf import settings
 from json import dumps as json_dumps, loads as json_loads
 from rest_framework.serializers import (CharField,
@@ -34,7 +34,7 @@ class PeriodicTaskSerializer(ModelSerializer):
 
 class MonitorSerializer(ModelSerializer):
     id = UUIDField(read_only=True)
-    report = ScanReportSerializer(required=False)
+    report = ScannerSerializer(required=False)
     periodic_task = PeriodicTaskSerializer()
     modified = DateTimeField(read_only=True)
 

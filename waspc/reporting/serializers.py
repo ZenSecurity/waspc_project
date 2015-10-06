@@ -1,8 +1,9 @@
 from .models import Notification, Report
 from rest_framework.serializers import (CharField,
                                         DateTimeField,
+                                        IntegerField,
+                                        ModelField,
                                         ModelSerializer,
-                                        ReadOnlyField,
                                         Serializer,
                                         ValidationError,
                                         URLField,
@@ -12,7 +13,10 @@ from rest_framework.serializers import (CharField,
 class ReportSerializer(ModelSerializer):
     id = UUIDField(read_only=True)
     broker = CharField(read_only=True)
-    report = ReadOnlyField(read_only=True)
+    report = ModelField(model_field=Report()._meta.get_field('report'), initial={
+        'data': {},
+        'metadata': {}
+    })
     report_url = URLField(read_only=True)
     modified = DateTimeField(read_only=True)
 
@@ -42,8 +46,8 @@ class LogstashReportSerializer(Serializer):
 
 class NotificationSerializer(ModelSerializer):
     id = UUIDField(read_only=True)
-    severity = CharField(read_only=True)
-    report = ReportSerializer()
+    severity = IntegerField(initial=0)
+    report = ReportSerializer(read_only=True)
     modified = DateTimeField(read_only=True)
 
     class Meta:

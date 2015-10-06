@@ -1,5 +1,5 @@
 from .models import ScanReport
-from .serializers import ScanReportSerializer, ScannerSerializer
+from .serializers import ScannerSerializer
 from config.celery import waspc_celery
 from django.contrib.sites.models import Site
 from django.views.generic import TemplateView
@@ -29,11 +29,6 @@ class ReportTemplateView(TemplateView):
                 'created': report.modified
             }
         return self.render_to_response(context)
-
-
-class ReportViewSet(ModelViewSet):
-    serializer_class = ScanReportSerializer
-    queryset = ScanReport.objects.all()
 
 
 class ScannerTemplateView(TemplateView):
