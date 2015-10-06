@@ -7,4 +7,3 @@
     #                 ' w3af and couldn\'t be resolved:\n%s\n' % wmse
     #         om.out.error(error)
     # -->     raise
-3) default values for Fields, without hacks

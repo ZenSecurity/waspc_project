@@ -232,12 +232,12 @@ class ReportViewSet(ModelViewSet):
                     broker_notification.severity = result_report_severity
                     broker_notification.report = broker_notification_report
                     broker_notification.save()
-            else:
-                broker_notification_report.save()
-                Notification.objects.create(
-                    severity=result_report_severity,
-                    report=broker_notification_report
-                )
+            # else:
+            #     broker_notification_report.save()
+            #     Notification.objects.create(
+            #         severity=result_report_severity,
+            #         report=broker_notification_report
+            #     )
 
         return Response(
             data=message,
