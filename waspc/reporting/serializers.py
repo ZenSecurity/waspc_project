@@ -12,11 +12,14 @@ from rest_framework.serializers import (CharField,
 
 class ReportSerializer(ModelSerializer):
     id = UUIDField(read_only=True)
-    broker = CharField(initial="")
-    report = ModelField(model_field=Report()._meta.get_field('report'), initial={
-        'data': {},
-        'metadata': {}
-    })
+    broker = CharField(initial="DEADBEEF")
+    report = ModelField(
+        model_field=Report()._meta.get_field('report'),
+        initial={
+            'data': {},
+            'metadata': {}
+        }
+    )
     report_url = URLField(read_only=True)
     modified = DateTimeField(read_only=True)
 
