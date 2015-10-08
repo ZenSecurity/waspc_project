@@ -7,7 +7,7 @@ from json import dumps as json_dumps
 from operator import itemgetter
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
-from rest_framework.status import HTTP_201_CREATED
+from rest_framework.status import HTTP_201_CREATED, HTTP_204_NO_CONTENT
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
 
@@ -51,7 +51,7 @@ def get_reports_difference(new_report, old_report):
     }
 
     if new_report_data == old_report_data:
-        return result_report
+        return None
 
     def incident_binary_search(sequence, item):
         low, high = 0, len(sequence)
@@ -111,10 +111,7 @@ def get_reports_difference(new_report, old_report):
                 result_report_metadata[category] = new_report_metadata[category]
 
     if old_report_data == new_report_data:
-        return {
-            'data': {},
-            'metadata': {}
-        }
+        return None
 
     if result_report_data:
         report_metadata = set(new_report_metadata) - set(new_report_data)
@@ -209,6 +206,11 @@ class ReportViewSet(ModelViewSet):
                 }
 
             result_report = get_reports_difference(new_report, old_report)
+            if not result_report:
+                return Response(
+                    status=HTTP_204_NO_CONTENT,
+                )
+
             result_report_severity = get_report_severity(result_report)
 
             broker_notifications = Notification.objects.filter(
