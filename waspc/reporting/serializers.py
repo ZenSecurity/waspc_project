@@ -12,7 +12,7 @@ from rest_framework.serializers import (CharField,
 
 class ReportSerializer(ModelSerializer):
     id = UUIDField(read_only=True)
-    broker = CharField(initial="DEADBEEF")
+    broker = CharField(initial="")
     report = ModelField(
         model_field=Report()._meta.get_field('report'),
         initial={
