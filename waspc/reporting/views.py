@@ -221,7 +221,7 @@ class ReportViewSet(ModelViewSet):
                 report=result_report
             )
             broker_notification_report.report_url = reverse(
-                viewname='scanner:report',
+                viewname='reporting:report',
                 args=[broker_notification_report.pk],
                 request=request
             )
