@@ -65,6 +65,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    # 'waspc.contrib.logging.middleware.LoggingMiddleware'
 )
 
 ROOT_URLCONF = 'config.urls'
@@ -166,6 +167,28 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.BrowsableAPIRenderer',
     ),
 }
+
+
+# LOGGING CONFIGURATION
+# See: https://docs.djangoproject.com/en/1.8/ref/settings/#logging
+
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'handlers': {
+#         'console': {
+#             'class': 'logging.StreamHandler',
+#         },
+#     },
+#     'loggers': {
+#         'waspc': {
+#             'handlers': ['console'],
+#             'level': 'DEBUG',
+#             'propagate': False,
+#         },
+#     },
+# }
+
 
 # Web Application Security Policy Checker
 # https://github.com/ZenSecurity/waspc

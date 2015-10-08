@@ -8,10 +8,10 @@ from operator import itemgetter
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.status import HTTP_201_CREATED
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
 
-class NotificationViewSet(ModelViewSet):
+class NotificationViewSet(ReadOnlyModelViewSet):
     serializer_class = NotificationSerializer
     queryset = Notification.objects.all()
 
@@ -42,8 +42,16 @@ def get_reports_difference(new_report, old_report):
     new_report_data = new_report['data']
     old_report_data = old_report['data']
 
-    if not new_report_data or not old_report_data or new_report_data == old_report_data:
+    if not new_report_data or not old_report_data:
         return new_report
+
+    result_report = {
+        'data': {},
+        'metadata': {}
+    }
+
+    if new_report_data == old_report_data:
+        return result_report
 
     def incident_binary_search(sequence, item):
         low, high = 0, len(sequence)
@@ -61,11 +69,6 @@ def get_reports_difference(new_report, old_report):
     new_report_metadata = new_report['metadata']
     old_report_metadata = old_report['metadata']
 
-    result_report = {
-        'data': {},
-        'metadata': {}
-    }
-
     result_report_data = result_report['data']
     result_report_metadata = result_report['metadata']
 
@@ -77,7 +80,8 @@ def get_reports_difference(new_report, old_report):
                 if severity in old_report_data[category]:
                     old_report_data[category][severity].sort(key=itemgetter('data'))
                     result_report_data[category][severity] = []
-                    for incident_dataset in sorted(new_report_data[category][severity], key=itemgetter('data')):
+                    new_report_data[category][severity].sort(key=itemgetter('data'))
+                    for incident_dataset in new_report_data[category][severity]:
                         incident_index = incident_binary_search(old_report_data[category][severity], incident_dataset)
                         if incident_index is not None:
                             old_report_data_incident_dataset = old_report_data[category][severity][incident_index]
@@ -105,6 +109,12 @@ def get_reports_difference(new_report, old_report):
             result_report_data[category] = new_report_data[category]
             if category in new_report_metadata:
                 result_report_metadata[category] = new_report_metadata[category]
+
+    if old_report_data == new_report_data:
+        return {
+            'data': {},
+            'metadata': {}
+        }
 
     if result_report_data:
         report_metadata = set(new_report_metadata) - set(new_report_data)
@@ -178,7 +188,7 @@ class ReportViewSet(ModelViewSet):
         serializer = LogstashReportSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        message = serializer.data.get('message')
+        message = serializer.validated_data.get('message')
 
         for report in message:
             broker = report['broker']

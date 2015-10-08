@@ -15,6 +15,7 @@ Including another URLconf
 """
 from django.conf.urls import include, url
 from django.contrib import admin
+from django.views.generic import RedirectView
 from rest_framework.routers import DefaultRouter
 from waspc.monitoring.views import MonitorViewSet
 from waspc.reporting.views import NotificationViewSet
@@ -31,6 +32,7 @@ api_router.register(r'reporting', ReportViewSet, 'reporting')
 api_router.register(r'scanner', ScannerViewSet, 'scanner')
 
 urlpatterns = [
+    url(r'^$', RedirectView.as_view(url='/api/', permanent=True), name='root'),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^api/', include(api_router.urls, namespace='api')),
     url(r'^scanner/', include(scanner_urlpatterns, namespace='scanner')),
