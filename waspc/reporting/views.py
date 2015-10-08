@@ -210,7 +210,6 @@ class ReportViewSet(ModelViewSet):
                 return Response(
                     status=HTTP_204_NO_CONTENT,
                 )
-
             result_report_severity = get_report_severity(result_report)
 
             broker_notifications = Notification.objects.filter(
@@ -222,7 +221,7 @@ class ReportViewSet(ModelViewSet):
                 report=result_report
             )
             broker_notification_report.report_url = reverse(
-                viewname='reporting:report',
+                viewname='scanner:report',
                 args=[broker_notification_report.pk],
                 request=request
             )
