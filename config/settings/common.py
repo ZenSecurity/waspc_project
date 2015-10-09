@@ -176,15 +176,17 @@ REST_FRAMEWORK = {
 #     'version': 1,
 #     'disable_existing_loggers': False,
 #     'handlers': {
-#         'console': {
-#             'class': 'logging.StreamHandler',
+#         'file': {
+#             'level': 'DEBUG',
+#             'class': 'logging.FileHandler',
+#             'filename': 'waspc_requests.log',
 #         },
 #     },
 #     'loggers': {
 #         'waspc': {
-#             'handlers': ['console'],
+#             'handlers': ['file'],
 #             'level': 'DEBUG',
-#             'propagate': False,
+#             'propagate': True,
 #         },
 #     },
 # }
