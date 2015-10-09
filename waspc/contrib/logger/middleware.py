@@ -3,7 +3,7 @@ from logging import getLogger
 # from time import time
 
 
-class LoggingMiddleware(object):
+class RequestLoggerMiddleware(object):
     def __init__(self):
         self.logger = getLogger('waspc')
 
@@ -12,7 +12,6 @@ class LoggingMiddleware(object):
     #     return None
 
     def process_response(self, request, response):
-        print dir(request)
         self.logger.info('[{0:%d}/{0:%b}/{0:%Y} {0:%X}] "{method} {path} {protocol}" {status} {content_length}'.format(
             datetime.now(),
             method=request.method,
