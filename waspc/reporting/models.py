@@ -14,7 +14,6 @@ class Report(Model):
     Report information
     """
     id = UUIDField(primary_key=True, default=uuid4)
-    # broker stores sha512 hash
     broker = CharField(max_length=128)
     report = JSONField(
         default={

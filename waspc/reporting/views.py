@@ -30,7 +30,11 @@ class NotificationViewSet(ReadOnlyModelViewSet):
                 for metadata in notification_metadata:
                     data[metadata] = report_metadata[metadata]
             if 'report_url' in data_report:
-                data['report_url'] = 'http://example.com' #data_report['report_url']
+                data['report_url'] = reverse(
+                    viewname='reporting:process',
+                    args=[data_report['id']],
+                    request=request
+                )
             del data['report']
 
         return Response(serializer.data)
