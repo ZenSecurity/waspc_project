@@ -91,7 +91,7 @@ class Scanner(Task):
             except Exception as exception:
                 # exc_type - exception type, exc_message - exception message
                 # celery's got the same parameters when exception occurs
-                # todo: need to log that event
+                # TODO: need to log that event
                 # self.update_report(
                 #     {
                 #         'exc_type': exception.__class__.__name__,

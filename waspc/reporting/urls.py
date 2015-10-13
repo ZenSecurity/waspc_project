@@ -1,7 +1,8 @@
-from .views import ReportTemplateView
+from .views import HistoryReportTemplateView, ProcessReportTemplateView
 from django.conf.urls import url
 
 
 urlpatterns = [
-    url(r'^report/(?P<pk>[0-9a-f-]+)/$', ReportTemplateView.as_view(), name='report')
+    url(r'^process/(?P<pk>[0-9a-f-]+)/$', ProcessReportTemplateView.as_view(), name='process'),
+    url(r'^history/(?P<pk>[0-9a-f-]+)/$', HistoryReportTemplateView.as_view(), name='history')
 ]

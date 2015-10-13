@@ -3,7 +3,6 @@ from .serializers import (ReportSerializer,
                           LogstashReportSerializer,
                           NotificationSerializer)
 from django.views.generic import TemplateView
-from json import dumps as json_dumps
 from operator import itemgetter
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
@@ -21,7 +20,7 @@ class NotificationViewSet(ReadOnlyModelViewSet):
 
         serializer_data = serializer.data
 
-        # todo: need to fix that shit
+        # TODO: need to fix that shit
         for data in serializer_data:
             data_report = data['report']
             report = data_report['report']
@@ -31,7 +30,7 @@ class NotificationViewSet(ReadOnlyModelViewSet):
                 for metadata in notification_metadata:
                     data[metadata] = report_metadata[metadata]
             if 'report_url' in data_report:
-                data['report_url'] = data_report['report_url']
+                data['report_url'] = 'http://example.com' #data_report['report_url']
             del data['report']
 
         return Response(serializer.data)
@@ -145,8 +144,23 @@ def get_report_severity(report):
     return report_severity_value
 
 
-class ReportTemplateView(TemplateView):
-    template_name = 'reporting.html'
+class HistoryReportTemplateView(TemplateView):
+    template_name = 'history.html'
+
+    def get(self, request, *args, **kwargs):
+        report_id = kwargs.get('pk')
+        context = {}
+
+        if Report.objects.filter(id=report_id).exists():
+            report = Report.objects.get(id=report_id)
+            context = {
+                'report': report
+            }
+        return self.render_to_response(context)
+
+
+class ProcessReportTemplateView(TemplateView):
+    template_name = 'process.html'
 
     def get(self, request, *args, **kwargs):
         report_id = kwargs.get('pk')
@@ -157,18 +171,14 @@ class ReportTemplateView(TemplateView):
             broker_reports = Report.objects.filter(
                 broker=report.broker
             )
-            current_report_url = None
+            latest_report_url = None
             if broker_reports.exists():
                 report_url = broker_reports.latest().report_url
-                current_report_url = report_url if report_url != report.report_url else None
+                latest_report_url = report_url if report_url != report.report_url else None
 
             context = {
-                'report': json_dumps(report.report),
-                'report_created': report.modified,
-                'target_url': report.report['metadata']['target_url'],
-                'report_module': report.report['metadata']['module'],
-                'report_broker': report.broker,
-                'current_report_url': current_report_url,
+                'report': report,
+                'latest_report_url': latest_report_url,
                 'reporting_url': reverse(
                     viewname='api:reporting-list',
                     request=request
@@ -221,7 +231,7 @@ class ReportViewSet(ModelViewSet):
                 report=result_report
             )
             broker_notification_report.report_url = reverse(
-                viewname='reporting:report',
+                viewname='reporting:history',
                 args=[broker_notification_report.pk],
                 request=request
             )

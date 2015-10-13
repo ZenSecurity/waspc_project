@@ -3,8 +3,8 @@
 <html lang="en">
 
     <head>
-        {% if current_report_url %}
-            <meta http-equiv="refresh" content="0;URL='{{ current_report_url }}'">
+        {% if latest_report_url %}
+            <meta http-equiv="refresh" content="0;URL='{{ latest_report_url }}'">
         {% endif %}
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -14,8 +14,8 @@
 
         <script src="/static/reporting/js/jquery-1.11.2.min.js" type="text/javascript"></script>
         <script src="/static/reporting/js/bootstrap.min.js" type="text/javascript"></script>
-        <script src="/static/reporting/js/mustache.min.js" type="text/javascript"></script>
         <script src="/static/reporting/js/marked.js" type="text/javascript"></script>
+        <script src="/static/reporting/js/mustache.min.js" type="text/javascript"></script>
 
         <script id="category_panel_template" type="x-tmpl-mustache">
         {% verbatim %}
@@ -180,7 +180,8 @@
                     }
                 }
 
-                report = {{ report | safe }};
+                {% load jsonify %}
+                report = {{ report.report | jsonify }};
                 var report_data = report.data;
                 var report_metadata = report.metadata;
                 var categories = Object.keys(report_data).sort();
@@ -263,7 +264,7 @@
                         data: JSON.stringify({
                             "message": [
                                 {
-                                    "broker": "{{ report_broker }}",
+                                    "broker": "{{ report.broker }}",
                                     "report": report
                                 }
                             ]
@@ -304,13 +305,13 @@
                 <nav class="navbar navbar-default">
                     <div class="row" id="status-bar">
                         <div class="col-md-4 text-uppercase">
-                            <h4 class="text-muted">{{ report_module }}</h4>
+                            <h4 class="text-muted">{{ report.report.metadata.module }}</h4>
                         </div>
                         <div class="col-md-4">
-                            <h4 class="text-muted">{{ target_url }}</h4>
+                            <h4 class="text-muted">{{ report.report.metadata.target_url }}</h4>
                         </div>
                         <div class="col-md-4">
-                            <h4 class="text-muted">Last modified: {{ report_created | date:"Y M d D h:m:s" }}</h4>
+                            <h4 class="text-muted">Last modified: {{ report.modified | date:"Y M d D h:m:s" }}</h4>
                         </div>
                     </div>
                 </nav>

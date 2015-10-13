@@ -3,7 +3,6 @@ from .serializers import ScannerSerializer
 from config.celery import waspc_celery
 from django.contrib.sites.models import Site
 from django.views.generic import TemplateView
-from json import dumps as json_dumps
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.status import (HTTP_200_OK,
@@ -24,9 +23,7 @@ class ReportTemplateView(TemplateView):
         if ScanReport.objects.filter(id=report_id).exists():
             report = ScanReport.objects.get(id=report_id)
             context = {
-                'target_url': report.target_url,
-                'report': json_dumps(report.result),
-                'created': report.modified
+                'report': report
             }
         return self.render_to_response(context)
 

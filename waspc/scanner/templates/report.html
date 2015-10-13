@@ -16,20 +16,20 @@
 
         <script id="vulnerability_panel_template" type="x-tmpl-mustache">
         {% verbatim %}
-            <div class="panel panel-{{severity_div}}" id="vulnerability-panel-{{vulnerability_panel_index}}">
+            <div class="panel panel-{{ severity_div }}" id="vulnerability-panel-{{ vulnerability_panel_index }}">
                 <div class="panel-heading">
                     <div class="row">
                         <span class="glyphicon glyphicon-minus col-md-1" aria-hidden="true"></span>
-                        <div class="text-{{severity_div}} text-uppercase col-md-3">
-                            {{vulnerability_severity}} <span class="badge badge-{{severity_div}}">{{vulnerabilities_counter}}</span>
+                        <div class="text-{{ severity_div }} text-uppercase col-md-3">
+                            {{ vulnerability_severity }} <span class="badge badge-{{ severity_div }}">{{ vulnerabilities_counter }}</span>
                         </div>
-                        <div class="col-md-8">{{vulnerability_plugin_name}}</div>
+                        <div class="col-md-8">{{ vulnerability_plugin_name }}</div>
                     </div>
                 </div>
                 <div class="panel-body">
                     <section>
                         <h5>Description</h5>
-                        <p>{{{vulnerability_plugin_description}}}</p>
+                        <p>{{{ vulnerability_plugin_description }}}</p>
                     </section>
                     <table class="table table-condensed table-striped">
                         <thead>
@@ -39,12 +39,12 @@
                             </tr>
                         </thead>
                         <tbody>
-                        {{#vulnerability_tr}}
+                        {{# vulnerability_tr }}
                             <tr>
-                                <th class="col-md-1">{{vulnerability_index}}</th>
-                                <td class="col-md-11">{{{vulnerability_description}}}</td>
+                                <th class="col-md-1">{{ vulnerability_index }}</th>
+                                <td class="col-md-11">{{{ vulnerability_description }}}</td>
                             </tr>
-                        {{/vulnerability_tr}}
+                        {{/ vulnerability_tr }}
                         </tbody>
                     </table>
                 </div>
@@ -103,7 +103,8 @@
                         $("div." + vulnerability_severity + "-vulnerabilities").append(output);
                 }
 
-                var result_json = {{ report | safe }};
+                {% load jsonify %}
+                var result_json = {{ report.result | jsonify }};
 
                 for (var item in result_json) {
                     var element = result_json[item];
@@ -175,8 +176,8 @@
                         <hr>
                         <div id="status-bar">
                             <h4 class="text-center" id="scan-status">
-                                Report: <a href="{{ target_url }}" target="_blank">{{ target_url }}</a>
-                                {{ created }}
+                                Report: <a href="{{ report.target_url }}" target="_blank">{{ report.target_url }}</a>
+                                {{ report.modified }}
                             </h4>
                             <hr>
                         </div>
