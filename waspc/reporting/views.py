@@ -177,8 +177,13 @@ class ProcessReportTemplateView(TemplateView):
             )
             latest_report_url = None
             if broker_reports.exists():
-                report_url = broker_reports.latest().report_url
-                latest_report_url = report_url if report_url != report.report_url else None
+                latest_broker_report = broker_reports.latest()
+                if report != latest_broker_report:
+                    latest_report_url = reverse(
+                        viewname='reporting:process',
+                        args=[latest_broker_report.pk],
+                        request=request
+                    )
 
             context = {
                 'report': report,
@@ -235,7 +240,7 @@ class ReportViewSet(ModelViewSet):
                 report=result_report
             )
             broker_notification_report.report_url = reverse(
-                viewname='reporting:history',
+                viewname='reporting:process',
                 args=[broker_notification_report.pk],
                 request=request
             )
