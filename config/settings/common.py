@@ -20,10 +20,22 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'please_replace_my_secret_key_here'
+SECRET_KEY = 'please_replace_this_secret_key_in_your_new_deployment_instance'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+
+# TODO: need to read about this params more.
+ALLOWED_HOSTS = ['*']
+CSRF_COOKIE_HTTPONLY = True
+# CSRF_COOKIE_SECURE = True
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+# SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+# SECURE_HSTS_SECONDS = 0
+# SECURE_SSL_REDIRECT = True
+# SESSION_COOKIE_SECURE = True
+X_FRAME_OPTIONS = 'DENY'
 
 
 # Application definition
@@ -54,13 +66,10 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     # 'waspc.contrib.logger.middleware.RequestLoggerMiddleware'
 )
-
-ROOT_URLCONF = 'config.urls'
 
 TEMPLATES = [
     {
@@ -77,6 +86,9 @@ TEMPLATES = [
         },
     },
 ]
+
+
+ROOT_URLCONF = 'config.urls'
 
 WSGI_APPLICATION = 'config.wsgi.application'
 

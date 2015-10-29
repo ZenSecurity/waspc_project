@@ -49,7 +49,7 @@
                                 <th class="col-md-1 incident_index">{{ incident_index }}</th>
                                 <td class="col-md-5 incident_description">{{{ incident_description }}}</td>
                                 <td class="col-md-2 status">
-                                    <select class="form-control">
+                                    <select multiple class="form-control">
                                         <option {{ incident_open_selected }}>open</option>
                                         <option {{ incident_in_progress_selected }}>in progress</option>
                                         <option {{ incident_close_selected }}>close</option>
