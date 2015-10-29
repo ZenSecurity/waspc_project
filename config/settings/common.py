@@ -20,18 +20,11 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '0=+cssh#wvl&te(_u_!*ld#i)@r_1=k-xz9m^$0#3e$r4g4ss%'
+SECRET_KEY = 'please_replace_my_secret_key_here'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-
-MIGRATION_MODULES = {
-    'sites': 'waspc.contrib.sites.migrations'
-}
-
-ALLOWED_HOSTS = ['.zensecurity.su']
-SITE_ID = 1
 
 # Application definition
 
@@ -108,13 +101,9 @@ DATABASES = {
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'Europe/Minsk'
-
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = True
 
 
@@ -130,7 +119,6 @@ STATIC_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'static')
 
 BROKER_URL = 'amqp://localhost'
 CELERY_RESULT_BACKEND = 'redis://'
-# CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
 CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
 
 CELERY_CREATE_MISSING_QUEUES = True
