@@ -152,21 +152,6 @@ def get_report_severity(report):
     return report_severity_value
 
 
-class HistoryReportTemplateView(TemplateView):
-    template_name = 'history.html'
-
-    def get(self, request, *args, **kwargs):
-        report_id = kwargs.get('pk')
-        context = {}
-
-        if Report.objects.filter(id=report_id).exists():
-            report = Report.objects.get(id=report_id)
-            context = {
-                'report': report
-            }
-        return self.render_to_response(context)
-
-
 class ProcessReportTemplateView(TemplateView):
     template_name = 'process.html'
 
@@ -254,6 +239,9 @@ class ReportViewSet(ModelViewSet):
         broker_report = broker_report_object.report
 
         reports_difference = get_reports_difference(new_report, broker_report)
+        from pprint import pprint
+        pprint(reports_difference)
+
         if not reports_difference:
             return Response(status=HTTP_204_NO_CONTENT)
 
@@ -276,6 +264,6 @@ class ReportViewSet(ModelViewSet):
         broker_notification.save()
 
         return Response(
-            data=serializer.data,
+            data=reports_difference,
             status=HTTP_201_CREATED
         )
