@@ -7,7 +7,7 @@ if [[ $OS == Darwin ]]; then
     alias psql="psql95"
 fi
 
-echo -e "\n[ Creating template for unicode database ]"
+echo -e "\n[ Creating template for unicode databases ]"
 psql -c "UPDATE pg_database SET datistemplate = FALSE WHERE datname = 'template1'"
 psql -c "DROP DATABASE template1"
 psql -c "CREATE DATABASE template1 WITH TEMPLATE = template0 ENCODING = 'UNICODE'"
