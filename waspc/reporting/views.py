@@ -4,6 +4,7 @@ from .serializers import (ReportSerializer,
                           NotificationSerializer)
 from django.views.generic import TemplateView
 from operator import itemgetter
+from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.status import HTTP_201_CREATED, HTTP_204_NO_CONTENT
@@ -35,6 +36,9 @@ class NotificationViewSet(ReadOnlyModelViewSet):
                     args=[data_report['id']],
                     request=request
                 )
+            if 'broker' in data_report:
+                data['broker'] = data_report['broker']
+
             del data['report']
 
         return Response(serializer.data)
@@ -172,9 +176,7 @@ class ProcessReportTemplateView(TemplateView):
 
         if Report.objects.filter(id=report_id).exists():
             report = Report.objects.get(id=report_id)
-            broker_reports = Report.objects.filter(
-                broker=report.broker
-            )
+            broker_reports = Report.objects.filter(broker=report.broker)
             latest_report_url = None
             if broker_reports.exists():
                 latest_broker_report = broker_reports.latest()
@@ -188,80 +190,54 @@ class ProcessReportTemplateView(TemplateView):
             context = {
                 'report': report,
                 'latest_report_url': latest_report_url,
-                'reporting_url': reverse(
-                    viewname='api:reporting-list',
+                'report_url': reverse(
+                    viewname='api:reporting-detail',
+                    args=[report_id],
                     request=request
                 )
             }
+
         return self.render_to_response(context)
 
 
 class ReportViewSet(ModelViewSet):
     serializer_class = ReportSerializer
-    queryset = Report.objects.all()
+    queryset = Report.objects.order_by('broker', '-modified').distinct('broker')
 
     def create(self, request, *args, **kwargs):
         serializer = LogstashReportSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        message = serializer.validated_data.get('message')
+        messages = serializer.validated_data.get('message')
 
-        for report in message:
-            broker = report['broker']
-            new_report = report['report']
-
-            old_broker_reports = Report.objects.filter(
-                broker=broker
-            )
-
-            old_broker_report, old_report = None, None
+        for message in messages:
+            old_broker_reports = self.queryset.filter(broker=message['broker'])
             if old_broker_reports.exists():
-                old_broker_report = old_broker_reports.latest()
-                old_report = old_broker_report.report
-            else:
-                old_report = {
-                    'data': {},
-                    'metadata': {}
-                }
+                message_request = Request(request)
+                message_request._full_data = message
+                self.kwargs[u'pk'] = old_broker_reports.first().pk
 
-            result_report = get_reports_difference(new_report, old_report)
-            if not result_report:
-                return Response(
-                    status=HTTP_204_NO_CONTENT,
-                )
-            result_report_severity = get_report_severity(result_report)
+                return self.update(message_request)
 
-            broker_notifications = Notification.objects.filter(
-                report=old_broker_report
+            new_broker_report = Report(
+                broker=message['broker'],
+                report=message['report']
             )
-
-            broker_notification_report = Report(
-                broker=broker,
-                report=result_report
-            )
-            broker_notification_report.report_url = reverse(
+            new_broker_report.report_url = reverse(
                 viewname='reporting:process',
-                args=[broker_notification_report.pk],
+                args=[new_broker_report.pk],
                 request=request
             )
+            new_broker_report.save()
 
-            if broker_notifications.exists():
-                broker_notification = broker_notifications.latest()
-                if broker_notification.report.report != result_report:
-                    broker_notification_report.save()
-                    broker_notification.severity = result_report_severity
-                    broker_notification.report = broker_notification_report
-                    broker_notification.save()
-            else:
-                broker_notification_report.save()
-                Notification.objects.create(
-                    severity=result_report_severity,
-                    report=broker_notification_report
-                )
+            Notification.objects.create(
+                severity=get_report_severity(message['report']),
+                report=new_broker_report
+            )
 
         return Response(
-            data=message,
-            status=HTTP_201_CREATED,
+            data=messages,
+            status=HTTP_201_CREATED
         )
 
     def update(self, request, *args, **kwargs):
@@ -269,5 +245,37 @@ class ReportViewSet(ModelViewSet):
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
-        return Response(serializer.data)
+
+        new_report = serializer.validated_data['report']
+        broker = serializer.validated_data['broker']
+
+        broker_reports = self.queryset.filter(broker=broker)
+        broker_report_object = broker_reports.first()
+        broker_report = broker_report_object.report
+
+        reports_difference = get_reports_difference(new_report, broker_report)
+        if not reports_difference:
+            return Response(status=HTTP_204_NO_CONTENT)
+
+        broker_notifications = Notification.objects.filter(report=broker_report_object)
+        broker_notification = broker_notifications.first()
+
+        new_broker_report_object = Report(
+            broker=broker,
+            report=reports_difference
+        )
+        new_broker_report_object.report_url = reverse(
+            viewname='reporting:process',
+            args=[new_broker_report_object.pk],
+            request=request
+        )
+        new_broker_report_object.save()
+
+        broker_notification.severity = get_report_severity(reports_difference)
+        broker_notification.report = new_broker_report_object
+        broker_notification.save()
+
+        return Response(
+            data=serializer.data,
+            status=HTTP_201_CREATED
+        )

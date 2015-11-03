@@ -66,9 +66,10 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    # 'waspc.contrib.logger.middleware.RequestLoggerMiddleware'
+    'waspc.contrib.logger.middleware.RequestLoggerMiddleware'
 )
 
 TEMPLATES = [
@@ -171,24 +172,24 @@ REST_FRAMEWORK = {
 # LOGGING CONFIGURATION
 # See: https://docs.djangoproject.com/en/1.8/ref/settings/#logging
 
-# LOGGING = {
-#     'version': 1,
-#     'disable_existing_loggers': False,
-#     'handlers': {
-#         'file': {
-#             'level': 'DEBUG',
-#             'class': 'logging.FileHandler',
-#             'filename': 'waspc_requests.log',
-#         },
-#     },
-#     'loggers': {
-#         'waspc': {
-#             'handlers': ['file'],
-#             'level': 'DEBUG',
-#             'propagate': True,
-#         },
-#     },
-# }
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'waspc_requests.log',
+        },
+    },
+    'loggers': {
+        'waspc': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}
 
 
 # Web Application Security Policy Checker
