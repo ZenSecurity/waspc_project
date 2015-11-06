@@ -45,22 +45,10 @@ class NotificationViewSet(ReadOnlyModelViewSet):
 
 
 def get_reports_difference(new_report, old_report):
-
-    new_report_data = new_report['data']
-    old_report_data = old_report['data']
-
-    if not new_report_data or not old_report_data:
-        return new_report
-
-    result_report = {
-        'data': {},
-        'metadata': {}
-    }
-
-    if new_report_data == old_report_data:
+    if new_report == old_report:
         return None
 
-    def incident_binary_search(sequence, item):
+    def find_incident(sequence, item):
         low, high = 0, len(sequence)
         while low < high:
             middle = (low + high) // 2
@@ -73,9 +61,15 @@ def get_reports_difference(new_report, old_report):
                 return middle
         return None
 
-    new_report_metadata = new_report['metadata']
+    old_report_data = old_report['data']
     old_report_metadata = old_report['metadata']
+    new_report_data = new_report['data']
+    new_report_metadata = new_report['metadata']
 
+    result_report = {
+        'data': {},
+        'metadata': {}
+    }
     result_report_data = result_report['data']
     result_report_metadata = result_report['metadata']
 
@@ -88,42 +82,45 @@ def get_reports_difference(new_report, old_report):
                     old_report_data[category][severity].sort(key=itemgetter('data'))
                     result_report_data[category][severity] = []
                     new_report_data[category][severity].sort(key=itemgetter('data'))
-                    for incident_dataset in new_report_data[category][severity]:
-                        incident_index = incident_binary_search(old_report_data[category][severity], incident_dataset)
-                        if incident_index is not None:
-                            old_report_data_incident_dataset = old_report_data[category][severity][incident_index]
-                            if incident_dataset == old_report_data_incident_dataset:
-                                result_report_data[category][severity].append(incident_dataset)
+                    for new_report_incident in new_report_data[category][severity]:
+                        new_report_incident_index = find_incident(old_report_data[category][severity], new_report_incident)
+                        if new_report_incident_index is not None:
+                            old_report_incident = old_report_data[category][severity][new_report_incident_index]
+                            if new_report_incident == old_report_incident:
+                                result_report_data[category][severity].append(new_report_incident)
                             else:
-                                new_incident_dataset = {
-                                    'data': incident_dataset['data'],
+                                incident = {
+                                    'data': new_report_incident['data'],
                                     'metadata': {}
                                 }
-                                if 'metadata' in old_report_data_incident_dataset:
-                                    for metadata in old_report_data_incident_dataset['metadata']:
-                                        new_incident_dataset['metadata'][metadata] = old_report_data_incident_dataset['metadata'][metadata]
-                                if 'metadata' in incident_dataset:
-                                    for metadata in incident_dataset['metadata']:
-                                        new_incident_dataset['metadata'][metadata] = incident_dataset['metadata'][metadata]
-                                result_report_data[category][severity].append(new_incident_dataset)
+                                incident['metadata'].update(old_report_incident.get('metadata', {}))
+                                incident['metadata'].update(new_report_incident.get('metadata', {}))
+
+                                result_report_data[category][severity].append(incident)
+
+                            old_report_data[category][severity][new_report_incident_index] = {
+                                'data': {},
+                                'metadata': {}
+                            }
                         else:
-                            result_report_data[category][severity].append(incident_dataset)
+                            result_report_data[category][severity].append(new_report_incident)
+
+                    result_report_data[category][severity] += [
+                        incident for incident in old_report_data[category][severity] if incident.get('data', None)
+                    ]
                 else:
                     result_report_data[category][severity] = new_report_data[category][severity]
-            if category in old_report_metadata:
-                result_report_metadata[category] = old_report_metadata[category]
+
+            for severity in set(old_report_data[category]).difference(new_report_data[category]):
+                result_report_data[category][severity] = old_report_data[category][severity]
         else:
             result_report_data[category] = new_report_data[category]
-            if category in new_report_metadata:
-                result_report_metadata[category] = new_report_metadata[category]
 
-    if old_report_data == new_report_data:
-        return None
+    for category in set(old_report_data).difference(new_report_data):
+        result_report_data[category] = old_report_data[category]
 
-    if result_report_data:
-        report_metadata = set(new_report_metadata) - set(new_report_data)
-        for metadata in report_metadata:
-            result_report_metadata[metadata] = new_report_metadata[metadata]
+    result_report_metadata.update(old_report_metadata)
+    result_report_metadata.update(new_report_metadata)
 
     return result_report
 
@@ -142,9 +139,9 @@ def get_report_severity(report):
     for category in report_data:
         for severity in report_data[category]:
             severity_status = 'closed'
-            for incident_dataset in report_data[category][severity]:
-                incident_dataset_status = incident_dataset.get('metadata', {}).get('status', 'open')
-                severity_status = 'open' if incident_dataset_status == 'open' else severity_status
+            for incident in report_data[category][severity]:
+                incident_status = incident.get('metadata', {}).get('status', 'open')
+                severity_status = 'open' if incident_status == 'open' else severity_status
             if severity_status == 'open':
                 severity_value = severities_values[severity]
                 if severity_value > report_severity_value:
@@ -202,6 +199,7 @@ class ReportViewSet(ModelViewSet):
                 message_request._full_data = message
                 self.kwargs[u'pk'] = old_broker_reports.first().pk
 
+                # TODO: mistake is here
                 return self.update(message_request)
 
             new_broker_report = Report(
