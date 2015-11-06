@@ -7,7 +7,7 @@ from operator import itemgetter
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
-from rest_framework.status import HTTP_204_NO_CONTENT
+from rest_framework.status import HTTP_200_OK, HTTP_204_NO_CONTENT
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
 
@@ -216,7 +216,7 @@ class ReportViewSet(ModelViewSet):
                     report=new_broker_report
                 )
 
-        return Response(messages)
+        return Response(status=HTTP_200_OK)
 
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
@@ -254,4 +254,4 @@ class ReportViewSet(ModelViewSet):
         broker_notification.report = new_broker_report_object
         broker_notification.save()
 
-        return Response(reports_difference)
+        return Response(status=HTTP_200_OK)
