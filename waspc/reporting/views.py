@@ -7,7 +7,7 @@ from operator import itemgetter
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
-from rest_framework.status import HTTP_201_CREATED, HTTP_204_NO_CONTENT
+from rest_framework.status import HTTP_204_NO_CONTENT
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
 
@@ -78,6 +78,7 @@ def get_reports_difference(new_report, old_report):
             result_report_data[category] = {}
             for severity in new_report_data[category]:
                 result_report_data[category][severity] = {}
+                pair_incidents_indexes = []
                 if severity in old_report_data[category]:
                     old_report_data[category][severity].sort(key=itemgetter('data'))
                     result_report_data[category][severity] = []
@@ -98,15 +99,14 @@ def get_reports_difference(new_report, old_report):
 
                                 result_report_data[category][severity].append(incident)
 
-                            old_report_data[category][severity][new_report_incident_index] = {
-                                'data': {},
-                                'metadata': {}
-                            }
+                            pair_incidents_indexes.append(new_report_incident_index)
                         else:
                             result_report_data[category][severity].append(new_report_incident)
 
+                    unique_old_report_incidents_indexes = set(xrange(len(old_report_data[category][severity]))) - set(pair_incidents_indexes)
+
                     result_report_data[category][severity] += [
-                        incident for incident in old_report_data[category][severity] if incident.get('data', None)
+                        old_report_data[category][severity][unique_old_report_incident_index] for unique_old_report_incident_index in unique_old_report_incidents_indexes
                     ]
                 else:
                     result_report_data[category][severity] = new_report_data[category][severity]
@@ -122,7 +122,7 @@ def get_reports_difference(new_report, old_report):
     result_report_metadata.update(old_report_metadata)
     result_report_metadata.update(new_report_metadata)
 
-    return result_report
+    return None if result_report == old_report else result_report
 
 
 def get_report_severity(report):
@@ -198,30 +198,25 @@ class ReportViewSet(ModelViewSet):
                 message_request = Request(request)
                 message_request._full_data = message
                 self.kwargs[u'pk'] = old_broker_reports.first().pk
+                self.update(message_request)
+            else:
+                new_broker_report = Report(
+                    broker=message['broker'],
+                    report=message['report']
+                )
+                new_broker_report.report_url = reverse(
+                    viewname='reporting:process',
+                    args=[new_broker_report.pk],
+                    request=request
+                )
+                new_broker_report.save()
 
-                # TODO: mistake is here
-                return self.update(message_request)
+                Notification.objects.create(
+                    severity=get_report_severity(message['report']),
+                    report=new_broker_report
+                )
 
-            new_broker_report = Report(
-                broker=message['broker'],
-                report=message['report']
-            )
-            new_broker_report.report_url = reverse(
-                viewname='reporting:process',
-                args=[new_broker_report.pk],
-                request=request
-            )
-            new_broker_report.save()
-
-            Notification.objects.create(
-                severity=get_report_severity(message['report']),
-                report=new_broker_report
-            )
-
-        return Response(
-            data=messages,
-            status=HTTP_201_CREATED
-        )
+        return Response(messages)
 
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
@@ -237,8 +232,6 @@ class ReportViewSet(ModelViewSet):
         broker_report = broker_report_object.report
 
         reports_difference = get_reports_difference(new_report, broker_report)
-        from pprint import pprint
-        pprint(reports_difference)
 
         if not reports_difference:
             return Response(status=HTTP_204_NO_CONTENT)
@@ -261,7 +254,4 @@ class ReportViewSet(ModelViewSet):
         broker_notification.report = new_broker_report_object
         broker_notification.save()
 
-        return Response(
-            data=reports_difference,
-            status=HTTP_201_CREATED
-        )
+        return Response(reports_difference)
