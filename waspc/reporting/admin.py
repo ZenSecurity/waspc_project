@@ -1,25 +1,33 @@
 from .models import Notification, Report
+from django.core.urlresolvers import reverse
 from django.contrib import admin
 from django.utils.html import format_html
 
 
+@admin.register(Notification)
 class NotificationAdmin(admin.ModelAdmin):
-    fields = ('id', 'report_url_link', 'modified')
-    readonly_fields = ('id', 'report_url_link', 'modified')
+    def id(instance):
+        report_pk = instance.report.pk
+        return format_html(
+            '<a href="{0}" target="_blank">{1}</a>',
+            reverse(viewname='reporting:process', args=[report_pk]),
+            instance.pk
+        )
+    fields = ('id', 'severity', 'modified')
+    list_display = (id, 'severity', 'modified')
     search_fields = ('id',)
 
-    def report_url_link(self, instance):
-        return format_html('<a href="{0}" target="_blank">{0}</a>', instance.report.report_url)
 
-
+@admin.register(Report)
 class ReportAdmin(admin.ModelAdmin):
-    fields = ('id', 'broker', 'report_url_link', 'modified')
-    readonly_fields = ('id', 'report_url_link', 'broker', 'modified')
+    def id(instance):
+        instance_pk = instance.pk
+        return format_html(
+            '<a href="{0}" target="_blank">{1}</a>',
+            reverse(viewname='reporting:history', args=[instance_pk]),
+            instance_pk
+        )
+
+    fields = ('id', 'broker', 'modified')
+    list_display = (id, 'broker', 'modified')
     search_fields = ('broker',)
-
-    def report_url_link(self, instance):
-        return format_html('<a href="{0}" target="_blank">{0}</a>', instance.report_url)
-
-
-admin.site.register(Notification, NotificationAdmin)
-admin.site.register(Report, ReportAdmin)

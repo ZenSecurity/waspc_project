@@ -2,7 +2,8 @@ from .models import Notification, Report
 from .serializers import (ReportSerializer,
                           LogstashReportSerializer,
                           NotificationSerializer)
-from django.views.generic import TemplateView
+from django.http import HttpResponseRedirect, HttpResponseNotFound
+from django.views.generic.base import TemplateView
 from operator import itemgetter
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -30,12 +31,6 @@ class NotificationViewSet(ReadOnlyModelViewSet):
                 notification_metadata = set(report_metadata) - set(report['data'])
                 for metadata in notification_metadata:
                     data[metadata] = report_metadata[metadata]
-            if 'report_url' in data_report:
-                data['report_url'] = reverse(
-                    viewname='reporting:process',
-                    args=[data_report['id']],
-                    request=request
-                )
             if 'broker' in data_report:
                 data['broker'] = data_report['broker']
 
@@ -154,32 +149,39 @@ class ProcessReportTemplateView(TemplateView):
 
     def get(self, request, *args, **kwargs):
         report_id = kwargs.get('pk')
-        context = {}
 
         if Report.objects.filter(id=report_id).exists():
-            report = Report.objects.get(id=report_id)
-            broker_reports = Report.objects.filter(broker=report.broker)
-            latest_report_url = None
-            if broker_reports.exists():
-                latest_broker_report = broker_reports.latest()
-                if report != latest_broker_report:
-                    latest_report_url = reverse(
-                        viewname='reporting:process',
-                        args=[latest_broker_report.pk],
-                        request=request
+            current_report = Report.objects.get(id=report_id)
+            reports = Report.objects.filter(broker=current_report.broker)
+            if reports.exists():
+                latest_report = reports.latest()
+                if current_report != latest_report:
+                    return HttpResponseRedirect(
+                        reverse(viewname='reporting:process', args=[latest_report.pk])
                     )
 
-            context = {
-                'report': report,
-                'latest_report_url': latest_report_url,
-                'report_url': reverse(
-                    viewname='api:reporting-detail',
-                    args=[report_id],
-                    request=request
-                )
-            }
+            return self.render_to_response(
+                context={
+                    'report': current_report,
+                    'report_url': reverse(
+                        viewname='api:reporting-detail',
+                        args=[report_id],
+                        request=request
+                    )
+                }
+            )
 
-        return self.render_to_response(context)
+        return HttpResponseNotFound('Report: {} not found'.format(report_id))
+
+
+class ReportTemplateView(TemplateView):
+    template_name = 'history.html'
+
+    def get(self, request, *args, **kwargs):
+        report_id = kwargs.get('pk')
+        current_report = Report.objects.get(id=report_id)
+
+        return self.render_to_response(context={'report': current_report})
 
 
 class ReportViewSet(ModelViewSet):
@@ -200,16 +202,10 @@ class ReportViewSet(ModelViewSet):
                 self.kwargs[u'pk'] = old_broker_reports.first().pk
                 self.update(message_request)
             else:
-                new_broker_report = Report(
+                new_broker_report = Report.objects.create(
                     broker=message['broker'],
                     report=message['report']
                 )
-                new_broker_report.report_url = reverse(
-                    viewname='reporting:process',
-                    args=[new_broker_report.pk],
-                    request=request
-                )
-                new_broker_report.save()
 
                 Notification.objects.create(
                     severity=get_report_severity(message['report']),
@@ -237,21 +233,13 @@ class ReportViewSet(ModelViewSet):
             return Response(status=HTTP_204_NO_CONTENT)
 
         broker_notifications = Notification.objects.filter(report=broker_report_object)
-        broker_notification = broker_notifications.first()
 
-        new_broker_report_object = Report(
+        broker_notification = broker_notifications.first()
+        broker_notification.severity = get_report_severity(reports_difference)
+        broker_notification.report = Report.objects.create(
             broker=broker,
             report=reports_difference
         )
-        new_broker_report_object.report_url = reverse(
-            viewname='reporting:process',
-            args=[new_broker_report_object.pk],
-            request=request
-        )
-        new_broker_report_object.save()
-
-        broker_notification.severity = get_report_severity(reports_difference)
-        broker_notification.report = new_broker_report_object
         broker_notification.save()
 
         return Response(status=HTTP_200_OK)

@@ -3,7 +3,6 @@ from django.db.models import (DateTimeField,
                               IntegerField,
                               Model,
                               OneToOneField,
-                              URLField,
                               UUIDField)
 from jsonfield import JSONField
 from uuid import uuid4
@@ -21,7 +20,6 @@ class Report(Model):
             'metadata': {}
         }
     )
-    report_url = URLField(blank=True)
     modified = DateTimeField(auto_now=True)
 
     class Meta:

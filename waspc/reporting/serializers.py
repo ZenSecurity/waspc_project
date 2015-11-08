@@ -6,7 +6,6 @@ from rest_framework.serializers import (CharField,
                                         ModelSerializer,
                                         Serializer,
                                         ValidationError,
-                                        URLField,
                                         UUIDField)
 
 
@@ -20,7 +19,6 @@ class ReportSerializer(ModelSerializer):
             'metadata': {}
         }
     )
-    report_url = URLField(read_only=True)
     modified = DateTimeField(read_only=True)
 
     class Meta:
