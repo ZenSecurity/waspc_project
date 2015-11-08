@@ -95,8 +95,8 @@ class ScannerViewSet(ModelViewSet):
                         'task_id': task_id,
                         'target_url': task_target_url,
                         'task_result': '{exception_type} - {exception_message}'.format(
-                            exception_type=task_report['exc_type'],
-                            exception_message=task_report['exc_message']
+                            exception_type=task_report.get('exc_type'),
+                            exception_message=task_report.get('exc_message')
                         ),
                         'task_status': 'FAILURE',
                     },

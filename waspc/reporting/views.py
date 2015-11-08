@@ -188,7 +188,7 @@ class ReportViewSet(ModelViewSet):
         messages = serializer.validated_data.get('message')
 
         for message in messages:
-            old_broker_reports = self.queryset.filter(broker=message['broker'])
+            old_broker_reports = self.queryset.filter(broker=message.get('broker'))
             if old_broker_reports.exists():
                 message_request = Request(request)
                 message_request._full_data = message
@@ -196,12 +196,12 @@ class ReportViewSet(ModelViewSet):
                 self.update(message_request)
             else:
                 new_broker_report = Report.objects.create(
-                    broker=message['broker'],
-                    report=message['report']
+                    broker=message.get('broker'),
+                    report=message.get('report')
                 )
 
                 Notification.objects.create(
-                    severity=get_report_severity(message['report']),
+                    severity=get_report_severity(message.get('report')),
                     report=new_broker_report
                 )
 
@@ -213,8 +213,8 @@ class ReportViewSet(ModelViewSet):
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
 
-        new_report = serializer.validated_data['report']
-        broker = serializer.validated_data['broker']
+        new_report = serializer.validated_data.get('report')
+        broker = serializer.validated_data.get('broker')
 
         broker_reports = self.queryset.filter(broker=broker)
         broker_report_object = broker_reports.first()
