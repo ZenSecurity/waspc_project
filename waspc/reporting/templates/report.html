@@ -9,10 +9,10 @@
 
         <link href="/static/reporting/css/bootstrap.min.css" rel="stylesheet">
 
-        <script src="/static/reporting/js/jquery-1.11.2.min.js" type="text/javascript"></script>
+        <script src="/static/reporting/js/jquery-1.11.3.min.js" type="text/javascript"></script>
         <script src="/static/reporting/js/bootstrap.min.js" type="text/javascript"></script>
-        <script src="/static/reporting/js/marked.js" type="text/javascript"></script>
-        <script src="/static/reporting/js/mustache.min.js" type="text/javascript"></script>
+        <script src="/static/reporting/js/mustache-2.2.0.min.js" type="text/javascript"></script>
+        <script src="/static/reporting/js/marked-0.3.4.min.js" type="text/javascript"></script>
 
         <script id="category_panel_template" type="x-tmpl-mustache">
         {% verbatim %}
@@ -56,10 +56,10 @@
             $(document).ready(function() {
                 var renderer = new marked.Renderer();
                 renderer.heading = function(text, level) {
-                    return '<h5>' + text + '</h5>';
+                    return `<h5>${text}</h5>`;
                 };
                 renderer.link = function(href, title, text) {
-                    return '<a href="' + href + '" target="_blank">' + href + '</a>';
+                    return `<a href="${href}" target="_blank">${href}</a>`;
                 };
 
                 var category_panel_template = $("#category_panel_template").html();
@@ -137,7 +137,7 @@
                         };
 
                         var output = Mustache.render(category_panel_template, template_data);
-                        $("div." + severity + "-incidents").append(output);
+                        $(`div.${severity}-incidents`).append(output);
                     }
                 }
 

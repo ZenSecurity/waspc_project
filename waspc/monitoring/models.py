@@ -3,7 +3,7 @@ from django.db.models import (DateTimeField,
                               OneToOneField,
                               UUIDField)
 from djcelery.models import IntervalSchedule, PeriodicTask
-from ..scanner.models import ScanReport
+from ..scanner.models import Report
 from uuid import uuid4
 
 
@@ -12,7 +12,7 @@ class Monitor(Model):
     Monitor information
     """
     id = UUIDField(primary_key=True, default=uuid4)
-    report = OneToOneField(ScanReport, blank=True, null=True)
+    report = OneToOneField(Report, blank=True, null=True)
     periodic_task = OneToOneField(PeriodicTask)
     modified = DateTimeField(auto_now=True)
 

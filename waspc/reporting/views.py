@@ -175,7 +175,7 @@ class ProcessReportTemplateView(TemplateView):
 
 
 class ReportTemplateView(TemplateView):
-    template_name = 'history.html'
+    template_name = 'report.html'
 
     def get(self, request, *args, **kwargs):
         report_id = kwargs.get('pk')

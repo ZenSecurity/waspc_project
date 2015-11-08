@@ -13,8 +13,14 @@ class NotificationAdmin(admin.ModelAdmin):
             reverse(viewname='reporting:process', args=[report_pk]),
             instance.pk
         )
-    fields = ('id', 'severity', 'modified')
-    list_display = (id, 'severity', 'modified')
+
+    def module(self, instance):
+        return instance.report.report.get('metadata').get('module')
+
+    def broker(self, instance):
+        return instance.report.broker
+
+    list_display = (id, 'severity', 'module', 'broker', 'modified')
     search_fields = ('id',)
 
 
@@ -24,10 +30,9 @@ class ReportAdmin(admin.ModelAdmin):
         instance_pk = instance.pk
         return format_html(
             '<a href="{0}" target="_blank">{1}</a>',
-            reverse(viewname='reporting:history', args=[instance_pk]),
+            reverse(viewname='reporting:report', args=[instance_pk]),
             instance_pk
         )
 
-    fields = ('id', 'broker', 'modified')
     list_display = (id, 'broker', 'modified')
     search_fields = ('broker',)

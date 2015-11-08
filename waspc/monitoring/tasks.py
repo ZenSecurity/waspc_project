@@ -1,6 +1,6 @@
 from .models import (Monitor,
                      PeriodicTask,
-                     ScanReport)
+                     Report)
 from ..scanner.tasks import Scanner
 from celery import Task
 from config.celery import waspc_celery
@@ -22,7 +22,7 @@ class PeriodicScanner(Scanner):
             periodic_task=periodic_task
         )
 
-        monitor.report = ScanReport(
+        monitor.report = Report(
             result=self.get_report()
         )
         monitor_report = monitor.report

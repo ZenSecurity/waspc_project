@@ -47,10 +47,7 @@ Create a local PostgreSQL database with granted user
 
     # Ubuntu, begin
     $(venv) sudo /etc/init.d/postgresql start
-    $(venv) sudo su postgres
-    $(venv) psql -c 'CREATE DATABASE waspc'
-    $(venv) psql -c "CREATE USER waspc WITH PASSWORD 'waspc'"
-    $(venv) psql -c 'GRANT ALL PRIVILEGES ON DATABASE waspc to waspc'
+    $(venv) sudo su postgres -c './flushdb.sh'
     $(venv) exit
     # Ubuntu, end
 
@@ -62,9 +59,7 @@ Create a local PostgreSQL database with granted user
     $(venv) /opt/local/lib/postgresql95/bin/initdb -D /opt/local/var/db/postgresql95/defaultdb
     $(venv) /opt/local/lib/postgresql95/bin/pg_ctl -D /opt/local/var/db/postgresql95/defaultdb -l logfile start
     $(venv) export PATH="/opt/local/lib/postgresql95/bin/:$PATH"
-    $(venv) psql -c 'CREATE DATABASE waspc'
-    $(venv) psql -c "CREATE USER waspc WITH PASSWORD 'waspc'"
-    $(venv) psql -c 'GRANT ALL PRIVILEGES ON DATABASE waspc to waspc'
+    $(venv) ./flushdb.sh
     $(venv) exit
     # OSX, end
 

@@ -6,14 +6,13 @@ from jsonfield import JSONField
 from uuid import uuid4
 
 
-class ScanReport(Model):
+class Report(Model):
     """
     Stores scan report
     """
     id = UUIDField(primary_key=True, default=uuid4)
     target_url = URLField()
     result = JSONField(blank=True)
-    result_url = URLField(blank=True)
     modified = DateTimeField(auto_now=True)
 
     class Meta:

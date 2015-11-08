@@ -1,6 +1,7 @@
-from .models import ScanReport
+from .models import Report
 from .serializers import ScannerSerializer
 from config.celery import waspc_celery
+from django.http import HttpResponseNotFound
 from django.views.generic import TemplateView
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
@@ -16,28 +17,32 @@ class ReportTemplateView(TemplateView):
 
     def get(self, request, *args, **kwargs):
         report_id = kwargs.get('pk')
-        context = {}
 
-        if ScanReport.objects.filter(id=report_id).exists():
-            report = ScanReport.objects.get(id=report_id)
-            context = {
-                'report': report
-            }
-        return self.render_to_response(context)
+        if Report.objects.filter(id=report_id).exists():
+            return self.render_to_response(
+                context={'report': Report.objects.get(id=report_id)}
+            )
+
+        return HttpResponseNotFound('Report: {} not found'.format(report_id))
 
 
 class ScannerTemplateView(TemplateView):
     template_name = 'scanner.html'
 
     def get(self, request, *args, **kwargs):
-        return self.render_to_response({
-            'scanner_url': reverse(viewname='api:scanner-list', request=request)
-        })
+        return self.render_to_response(
+            context={
+                'scanner_url': reverse(
+                    viewname='api:scanner-list',
+                    request=request
+                )
+            }
+        )
 
 
 class ScannerViewSet(ModelViewSet):
     serializer_class = ScannerSerializer
-    queryset = ScanReport.objects.all()
+    queryset = Report.objects.all()
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -98,23 +103,16 @@ class ScannerViewSet(ModelViewSet):
                     status=HTTP_500_INTERNAL_SERVER_ERROR
                 )
             else:
-                scan_report = ScanReport(
+                scan_report = Report.objects.create(
                     target_url=task_target_url,
                     result=task_report
                 )
-                scan_report.result_url = reverse(
-                    viewname='scanner:report',
-                    args=[scan_report.pk],
-                    request=request
-                )
-                scan_report.save()
 
                 return Response(
                     data={
                         'task_id': task_id,
                         'task_status': task_status,
                         'task_result': task_report,
-                        'task_result_url': scan_report.result_url,
                         'task_finished': scan_report.modified
                     },
                     status=HTTP_200_OK
