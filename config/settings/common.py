@@ -69,7 +69,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    'waspc.contrib.logger.middleware.RequestLoggerMiddleware'
+    'waspc.contrib.middleware.logger.RequestLoggerMiddleware'
 )
 
 TEMPLATES = [
@@ -207,6 +207,7 @@ WASPC = {
     'reporting': {
         'jira': {
             'server': 'https://zensec.atlassian.net',
+            'project': 'IR',
             'username': 'admin',
             'password': 'adminadmin'
         }
