@@ -21,3 +21,6 @@ psycopg2
 
 # Redis support
 redis
+
+# For interacting with JIRA via REST APIs
+jira

@@ -24,16 +24,9 @@ class NotificationViewSet(ReadOnlyModelViewSet):
 
         # TODO: need to fix that shit
         for data in serializer_data:
-            data_report = data['report']
-            report = data_report['report']
-            if 'metadata' in report:
-                report_metadata = report['metadata']
-                notification_metadata = set(report_metadata) - set(report['data'])
-                for metadata in notification_metadata:
-                    data[metadata] = report_metadata[metadata]
-            if 'broker' in data_report:
-                data['broker'] = data_report['broker']
-
+            report = data.get('report', {})
+            data.update(report)
+            data.update(report.get('report', {}).get('metadata', {}))
             del data['report']
 
         return Response(serializer.data)

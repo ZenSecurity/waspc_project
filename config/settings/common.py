@@ -203,5 +203,12 @@ WASPC = {
     'monitoring': {
         'every': 15,
         'period': 'minutes'
+    },
+    'reporting': {
+        'jira': {
+            'server': 'https://zensec.atlassian.net',
+            'username': 'admin',
+            'password': 'adminadmin'
+        }
     }
 }
