@@ -59,8 +59,8 @@ Create a local PostgreSQL database with granted user
     $(venv) /opt/local/lib/postgresql95/bin/initdb -D /opt/local/var/db/postgresql95/defaultdb
     $(venv) /opt/local/lib/postgresql95/bin/pg_ctl -D /opt/local/var/db/postgresql95/defaultdb -l logfile start
     $(venv) export PATH="/opt/local/lib/postgresql95/bin/:$PATH"
-    $(venv) ./flushdb.sh
     $(venv) exit
+    $(venv) ./flushdb.sh
     # OSX, end
 
 Start RabbitMQ server
