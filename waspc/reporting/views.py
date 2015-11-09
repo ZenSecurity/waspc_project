@@ -21,12 +21,20 @@ class NotificationViewSet(ReadOnlyModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
 
         serializer_data = serializer.data
-
         # TODO: need to fix that shit
         for data in serializer_data:
             report = data.get('report', {})
             data.update(report)
             data.update(report.get('report', {}).get('metadata', {}))
+            data.update(
+                {
+                    'report_url': reverse(
+                        viewname='reporting:process',
+                        args=[report.get('id')],
+                        request=request
+                    )
+                }
+            )
             del data['report']
 
         return Response(serializer.data)
