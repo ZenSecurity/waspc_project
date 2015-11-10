@@ -16,7 +16,7 @@ psql -c "UPDATE pg_database SET datistemplate = TRUE WHERE datname = 'template1'
 echo -e "\n[ Creating waspc database, user and grant rights]"
 psql -c "DROP DATABASE waspc"
 psql -c "DROP USER waspc"
-psql -c "CREATE DATABASE waspc encoding=UTF8"
+psql -c "CREATE DATABASE waspc encoding='UTF8'"
 psql -c "CREATE USER waspc WITH PASSWORD 'waspc'"
 psql -c "GRANT ALL PRIVILEGES ON DATABASE waspc to waspc"
 

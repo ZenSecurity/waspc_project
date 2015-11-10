@@ -35,9 +35,9 @@
                         <thead>
                             <tr>
                                 <th class="col-md-1">#</th>
-                                <th class="col-md-5">Issue</th>
+                                <th class="col-md-5">Issue description</th>
                                 <th class="col-md-2">Status</th>
-                                <th class="col-md-4">Ticket</th>
+                                <th class="col-md-4">Issue link</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -47,14 +47,14 @@
                                 <td class="col-md-5 incident_description">{{{ incident_description }}}</td>
                                 <td class="col-md-2 status">
                                     <select multiple class="form-control">
-                                        <option {{ incident_open_selected }}>open</option>
-                                        <option {{ incident_in_progress_selected }}>in progress</option>
-                                        <option {{ incident_close_selected }}>close</option>
-                                        <option {{ incident_false_selected }}>false</option>
+                                        <option {{ incident_to_do_selected }}>To Do</option>
+                                        <option {{ incident_in_progress_selected }}>In Progress</option>
+                                        <option {{ incident_done_selected }}>Done</option>
+                                        <option {{ incident_false_selected }}>False</option>
                                     </select>
                                 </td>
-                                <td class="col-md-4 ticket">
-                                    <textarea class="form-control" rows="2" placeholder="https://jira/browse/ticker-number" {{ incident_ticket_url_disabled }}>{{ incident_ticket_url }}</textarea>
+                                <td class="col-md-4 issue text-center">
+                                    <a href="{{ incident_issue_url }}" target="_blank">{{ incident_issue_name }}</a>
                                 </td>
                             </tr>
                         {{ /incidents }}
@@ -114,42 +114,43 @@
                                 var incidents = [];
                                 for (var i = 0, incident_index = 1; i < category_data[severity].length; i++) {
                                     var incident_metadata = category_data[severity][i].metadata || {};
-                                    var incident_open_selected = "";
+                                    var incident_to_do_selected = "";
                                     var incident_in_progress_selected = "";
-                                    var incident_close_selected = "";
+                                    var incident_done_selected = "";
                                     var incident_false_selected = "";
-                                    var incident_ticket_url = "";
-                                    var incident_ticket_url_disabled = "";
+                                    var incident_issue_url = "";
+                                    var incident_issue_url_disabled = "";
 
                                     if (incident_metadata) {
                                         var incident_metadata_status = incident_metadata.status;
-                                        if (incident_metadata_status === "open") {
-                                            incident_open_selected = "selected";
-                                        } else if (incident_metadata_status === "in progress") {
+                                        if (incident_metadata_status === "To Do") {
+                                            incident_to_do_selected = "selected";
+                                        } else if (incident_metadata_status === "In Progress") {
                                             incident_in_progress_selected = "selected";
-                                        } else if (incident_metadata_status === "close") {
-                                            incident_close_selected = "selected";
-                                            incident_ticket_url_disabled = "disabled";
-                                        } else if (incident_metadata_status === "false") {
+                                        } else if (incident_metadata_status === "Done") {
+                                            incident_done_selected = "selected";
+                                            incident_issue_url_disabled = "disabled";
+                                        } else if (incident_metadata_status === "False") {
                                             incident_false_selected = "selected";
-                                            incident_ticket_url_disabled = "disabled";
+                                            incident_issue_url_disabled = "disabled";
                                         }
 
-                                        var incident_metadata_ticket_url = incident_metadata.ticket_url;
-                                        if (incident_metadata.ticket_url) {
-                                            incident_ticket_url = incident_metadata_ticket_url;
+                                        var incident_metadata_issue_url = incident_metadata.issue_url;
+                                        if (incident_metadata.issue_url) {
+                                            incident_issue_url = incident_metadata_issue_url;
                                         }
                                     }
 
                                     incidents.push({
                                         "incident_index": incident_index++,
                                         "incident_description": category_data[severity][i].data,
-                                        "incident_open_selected": incident_open_selected,
+                                        "incident_to_do_selected": incident_to_do_selected,
                                         "incident_in_progress_selected": incident_in_progress_selected,
-                                        "incident_close_selected": incident_close_selected,
+                                        "incident_done_selected": incident_done_selected,
                                         "incident_false_selected": incident_false_selected,
-                                        "incident_ticket_url": incident_ticket_url,
-                                        "incident_ticket_url_disabled": incident_ticket_url_disabled
+                                        "incident_issue_url": incident_issue_url,
+                                        "incident_issue_name": incident_issue_url.split('/').slice(-1).pop(),
+                                        "incident_issue_url_disabled": incident_issue_url_disabled
                                     });
                                 }
                                 return incidents;
@@ -212,18 +213,16 @@
                 $("select.form-control").on("change", function() {
                     var incident_status = this.value;
                     var ticket_url = $(this.parentNode.parentNode).find("textarea")[0];
-
-                    if (incident_status === "open") {
+                    if (incident_status === "To Do") {
                         $(ticket_url).attr("disabled", false);
-                    } else if (incident_status === "in progress") {
+                    } else if (incident_status === "In Progress") {
                         $(ticket_url).attr("disabled", false);
-                    } else if (incident_status === "close") {
+                    } else if (incident_status === "Done") {
                         $(ticket_url).attr("disabled", true);
-                    } else if (incident_status === "false") {
+                    } else if (incident_status === "False") {
                         $(ticket_url).val("");
                         $(ticket_url).attr("disabled", true);
                     }
-
                     var incident_description = $(this.parentNode.parentNode).children("[class*='incident_description']")[0].innerHTML;
                     var incident_element = find_incident_element(report, incident_description);
                     incident_element.metadata = incident_element.metadata || {};
@@ -239,19 +238,14 @@
                                 for (var incident_index=0; incident_index < report_data[category][severity].length; incident_index++) {
                                     var incident_element = report_data[category][severity][incident_index];
                                     incident_element.metadata = incident_element.metadata || {};
-                                    incident_element.metadata.status = "false";
+                                    incident_element.metadata.status = "False";
                                 }
                             }
                         }
                     }
 
                     $(this.parentNode.parentNode.parentNode).find("select").each(function() {
-                        this.value = "false";
-                    });
-
-                    $(this.parentNode.parentNode.parentNode).find("textarea").each(function () {
-                        $(this).val("");
-                        $(this).attr("disabled", true);
+                        this.value = "False";
                     });
                 });
 
@@ -268,13 +262,6 @@
                     }).complete(function() {
                         document.location.reload(true);
                     });
-                });
-
-                $("textarea").on("change", function () {
-                    var incident_description = $(this.parentNode.parentNode).children("[class*='incident_description']")[0].innerHTML;
-                    var incident_element = find_incident_element(report, incident_description);
-                    incident_element.metadata = incident_element.metadata || {};
-                    incident_element.metadata.ticket_url = this.value;
                 });
             });
         </script>
