@@ -10,35 +10,6 @@ from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.status import HTTP_200_OK, HTTP_204_NO_CONTENT
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
-from waspc.contrib.jira.connector import APIConnector
-
-
-class NotificationViewSet(ReadOnlyModelViewSet):
-    serializer_class = NotificationSerializer
-    queryset = Notification.objects.all()
-
-    def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
-        serializer = self.get_serializer(queryset, many=True)
-
-        serializer_data = serializer.data
-        # TODO: need to fix that shit
-        for data in serializer_data:
-            report = data.get('report', {})
-            data.update(report)
-            data.update(report.get('report', {}).get('metadata', {}))
-            data.update(
-                {
-                    'report_url': reverse(
-                        viewname='reporting:process',
-                        args=[report.get('id')],
-                        request=request
-                    )
-                }
-            )
-            del data['report']
-
-        return Response(serializer.data)
 
 
 def get_reports_difference(new_report, old_report):
@@ -176,53 +147,6 @@ class ProcessReportTemplateView(TemplateView):
         return HttpResponseNotFound('Report: {} not found'.format(report_id))
 
 
-def update_jira_issues(report):
-    issue_type = 'Task'
-    project_name = 'IR'
-    issues_priority = {
-        'information': 'Lowest',
-        'low': 'Low',
-        'medium': 'Medium',
-        'high': 'High'
-    }
-    issues_status = ('To Do', 'In Progress', 'Done')
-
-    report_data = report.get('data')
-    report_metadata = report.get('metadata')
-    for category in report_data:
-        for severity in report_data[category]:
-            for incident in report_data[category][severity]:
-                incident_metadata = incident.get('metadata', {})
-                incident_status = incident_metadata.get('status')
-                if incident_status == issues_status[0]:
-                    connection = APIConnector()
-                    if incident_metadata.get('issues_url'):
-                        issues_url = incident_metadata.get('issues_url')
-                        issue_name = issues_url.split('/')[-1]
-                        incident_metadata['status'] = connection.issue(issue_name).fields.status.name
-                    else:
-                        new_issue = connection.create_issue(
-                            project={'key': project_name},
-                            summary='{} {}'.format(
-                                report_metadata.get('module'),
-                                report_metadata.get('target_url')
-                            ),
-                            description='{description}'.format(
-                                description=report_metadata.get(category).get('description')
-                            ),
-                            issuetype={'name': issue_type},
-                            priority={'name': issues_priority[severity]}
-                        )
-                        incident_metadata['issue_url'] = new_issue.permalink()
-                elif incident_status in issues_status:
-                    connection = APIConnector()
-                    issues_url = incident_metadata.get('issue_url')
-                    if issues_url:
-                        issue_name = issues_url.split('/')[-1]
-                        incident_metadata['status'] = connection.issue(issue_name).fields.status.name
-    return report
-
-
 class ReportTemplateView(TemplateView):
     template_name = 'report.html'
 
@@ -292,3 +216,31 @@ class ReportViewSet(ModelViewSet):
         broker_notification.save()
 
         return Response(status=HTTP_200_OK)
+
+
+class NotificationViewSet(ReadOnlyModelViewSet):
+    serializer_class = NotificationSerializer
+    queryset = Notification.objects.all()
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(queryset, many=True)
+
+        serializer_data = serializer.data
+        # TODO: need to fix that shit
+        for data in serializer_data:
+            report = data.get('report', {})
+            data.update(report)
+            data.update(report.get('report', {}).get('metadata', {}))
+            data.update(
+                {
+                    'report_url': reverse(
+                        viewname='reporting:process',
+                        args=[report.get('id')],
+                        request=request
+                    )
+                }
+            )
+            del data['report']
+
+        return Response(serializer.data)
