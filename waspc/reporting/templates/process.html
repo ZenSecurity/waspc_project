@@ -135,8 +135,8 @@
                                             incident_ticket_url_disabled = "disabled";
                                         }
 
-                                        var incident_metadata_ticket_url = incident_metadata.ticket;
-                                        if (incident_metadata.ticket) {
+                                        var incident_metadata_ticket_url = incident_metadata.ticket_url;
+                                        if (incident_metadata.ticket_url) {
                                             incident_ticket_url = incident_metadata_ticket_url;
                                         }
                                     }
@@ -265,7 +265,7 @@
                         method: "PUT",
                         contentType: "application/json",
                         dataType: "json"
-                    }).done(function() {
+                    }).complete(function() {
                         document.location.reload(true);
                     });
                 });
@@ -274,7 +274,7 @@
                     var incident_description = $(this.parentNode.parentNode).children("[class*='incident_description']")[0].innerHTML;
                     var incident_element = find_incident_element(report, incident_description);
                     incident_element.metadata = incident_element.metadata || {};
-                    incident_element.metadata.ticket = this.value;
+                    incident_element.metadata.ticket_url = this.value;
                 });
             });
         </script>

@@ -15,7 +15,7 @@ class NotificationAdmin(admin.ModelAdmin):
         )
 
     def module(self, instance):
-        return instance.report.report.get('metadata').get('module')
+        return instance.report.report.get('metadata', {}).get('module')
 
     def broker(self, instance):
         return instance.report.broker
