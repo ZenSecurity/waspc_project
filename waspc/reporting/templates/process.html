@@ -44,7 +44,7 @@
                         {{ #incidents }}
                             <tr>
                                 <th class="col-md-1 incident_index">{{ incident_index }}</th>
-                                <td class="col-md-5 incident_description">{{ incident_description }}</td>
+                                <td class="col-md-5 incident_description">{{{ incident_description }}}</td>
                                 <td class="col-md-2 status">
                                     <select multiple class="form-control">
                                         <option {{ incident_to_do_selected }}>To Do</option>
