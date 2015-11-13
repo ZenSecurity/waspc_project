@@ -150,8 +150,9 @@ def update_jira_issues(report):
                                 report_metadata.get('module'),
                                 report_metadata.get('target_url')
                             ),
-                            description='{description}'.format(
-                                description=report_metadata.get(category).get('description')
+                            description='{description} {incident_data}'.format(
+                                description=report_metadata.get(category).get('description'),
+                                incident_data=incident.get('data')
                             ),
                             issuetype={'name': issue_type},
                             priority={'name': issues_priority[severity]}
@@ -251,8 +252,6 @@ class ReportViewSet(ModelViewSet):
         broker_report_object = broker_reports.first()
         broker_report = broker_report_object.report
 
-        print new_report
-        print broker_report
         reports_difference = get_reports_difference(new_report, broker_report)
 
         if not reports_difference:
