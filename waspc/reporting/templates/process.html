@@ -160,13 +160,15 @@
                     }
                 }
 
-                function find_incident_element(report, incident_description) {
+                function find_incident_element(report, current_incident_description) {
                     var report_data = report["data"];
+                    var report_incident_description_div = document.createElement("div");
 
                     for (var category in report_data) {
                         for (var severity in report_data[category]) {
                             for (var description in report_data[category][severity]) {
-                                if ($(incident_description).text() == report_data[category][severity][description].data){
+                                report_incident_description_div.innerHTML = marked(report_data[category][severity][description].data, {renderer: renderer});
+                                if (current_incident_description == report_incident_description_div.innerHTML){
                                     return report_data[category][severity][description];
                                 }
                             }
