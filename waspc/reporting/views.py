@@ -151,6 +151,7 @@ def update_jira_issues(report):
                                 report_metadata.get('target_url')
                             ),
                             description=u"""{category_description}
+
                             {incident_description}""".format(
                                 category_description=report_metadata.get(category).get('description'),
                                 incident_description=incident.get('data')
