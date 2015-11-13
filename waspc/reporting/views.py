@@ -170,7 +170,7 @@ def update_jira_issues(report):
 
 
 class ProcessReportTemplateView(TemplateView):
-    template_name = 'process.html'
+    template_name = 'reporting/process.html'
 
     def get(self, request, *args, **kwargs):
         report_id = kwargs.get('pk')
@@ -202,7 +202,7 @@ class ProcessReportTemplateView(TemplateView):
 
 
 class ReportTemplateView(TemplateView):
-    template_name = 'report.html'
+    template_name = 'reporting/report.html'
 
     def get(self, request, *args, **kwargs):
         report_id = kwargs.get('pk')

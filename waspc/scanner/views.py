@@ -13,7 +13,7 @@ from rest_framework.viewsets import ModelViewSet
 
 
 class ReportTemplateView(TemplateView):
-    template_name = 'report.html'
+    template_name = 'scanner/report.html'
 
     def get(self, request, *args, **kwargs):
         report_id = kwargs.get('pk')
@@ -27,7 +27,7 @@ class ReportTemplateView(TemplateView):
 
 
 class ScannerTemplateView(TemplateView):
-    template_name = 'scanner.html'
+    template_name = 'scanner/scanner.html'
 
     def get(self, request, *args, **kwargs):
         return self.render_to_response(
