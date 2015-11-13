@@ -10,6 +10,7 @@ from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.status import HTTP_200_OK, HTTP_204_NO_CONTENT
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
+from waspc.contrib.jira.connector import APIConnector
 
 
 def get_reports_difference(new_report, old_report):
@@ -106,15 +107,63 @@ def get_report_severity(report):
     report_data = report['data']
     for category in report_data:
         for severity in report_data[category]:
-            severity_status = 'closed'
+            severity_status = 'Done'
             for incident in report_data[category][severity]:
-                incident_status = incident.get('metadata', {}).get('status', 'open')
-                severity_status = 'open' if incident_status == 'open' else severity_status
-            if severity_status == 'open':
+                incident_status = incident.get('metadata', {}).get('status', 'To Do')
+                severity_status = 'To Do' if incident_status == 'To Do' else severity_status
+            if severity_status == 'To Do':
                 severity_value = severities_values[severity]
                 if severity_value > report_severity_value:
                     report_severity_value = severity_value
     return report_severity_value
+
+
+def update_jira_issues(report):
+
+    issue_type = 'Task'
+    project_name = 'IR'
+    issues_priority = {
+        'information': 'Lowest',
+        'low': 'Low',
+        'medium': 'Medium',
+        'high': 'High'
+    }
+    issues_status = ('To Do', 'In Progress', 'Done')
+
+    report_data = report.get('data')
+    report_metadata = report.get('metadata')
+    for category in report_data:
+        for severity in report_data[category]:
+            for incident in report_data[category][severity]:
+                incident_metadata = incident.get('metadata', {})
+                incident_status = incident_metadata.get('status')
+                if incident_status == 'To Do':
+                    connection = APIConnector()
+                    if incident_metadata.get('issue_url'):
+                        issues_url = incident_metadata.get('issue_url')
+                        issue_name = issues_url.split('/')[-1]
+                        incident_metadata['status'] = connection.issue(issue_name).fields.status.name
+                    else:
+                        new_issue = connection.create_issue(
+                            project={'key': project_name},
+                            summary='{} {}'.format(
+                                report_metadata.get('module'),
+                                report_metadata.get('target_url')
+                            ),
+                            description='{description}'.format(
+                                description=report_metadata.get(category).get('description')
+                            ),
+                            issuetype={'name': issue_type},
+                            priority={'name': issues_priority[severity]}
+                        )
+                        incident_metadata['issue_url'] = new_issue.permalink()
+                elif incident_status in issues_status:
+                    issues_url = incident_metadata.get('issue_url')
+                    if issues_url:
+                        issue_name = issues_url.split('/')[-1]
+                        connection = APIConnector()
+                        incident_metadata['status'] = connection.issue(issue_name).fields.status.name
+    return report
 
 
 class ProcessReportTemplateView(TemplateView):
@@ -132,6 +181,8 @@ class ProcessReportTemplateView(TemplateView):
                     return HttpResponseRedirect(
                         reverse(viewname='reporting:process', args=[latest_report.pk])
                     )
+
+            current_report.report = update_jira_issues(current_report.report)
 
             return self.render_to_response(
                 context={
@@ -200,10 +251,14 @@ class ReportViewSet(ModelViewSet):
         broker_report_object = broker_reports.first()
         broker_report = broker_report_object.report
 
+        print new_report
+        print broker_report
         reports_difference = get_reports_difference(new_report, broker_report)
 
         if not reports_difference:
             return Response(status=HTTP_204_NO_CONTENT)
+
+        reports_difference = update_jira_issues(reports_difference)
 
         broker_notifications = Notification.objects.filter(report=broker_report_object)
 

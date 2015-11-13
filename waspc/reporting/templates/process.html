@@ -119,7 +119,7 @@
                                     var incident_done_selected = "";
                                     var incident_false_selected = "";
                                     var incident_issue_url = "";
-                                    var incident_issue_url_disabled = "";
+                                    var incident_issue_name = "";
 
                                     if (incident_metadata) {
                                         var incident_metadata_status = incident_metadata.status;
@@ -129,15 +129,14 @@
                                             incident_in_progress_selected = "selected";
                                         } else if (incident_metadata_status === "Done") {
                                             incident_done_selected = "selected";
-                                            incident_issue_url_disabled = "disabled";
                                         } else if (incident_metadata_status === "False") {
                                             incident_false_selected = "selected";
-                                            incident_issue_url_disabled = "disabled";
                                         }
 
                                         var incident_metadata_issue_url = incident_metadata.issue_url;
-                                        if (incident_metadata.issue_url) {
+                                        if (incident_metadata_issue_url) {
                                             incident_issue_url = incident_metadata_issue_url;
+                                            incident_issue_name = incident_metadata_issue_url.split('/').slice(-1).pop();
                                         }
                                     }
 
@@ -149,8 +148,7 @@
                                         "incident_done_selected": incident_done_selected,
                                         "incident_false_selected": incident_false_selected,
                                         "incident_issue_url": incident_issue_url,
-                                        "incident_issue_name": incident_issue_url.split('/').slice(-1).pop(),
-                                        "incident_issue_url_disabled": incident_issue_url_disabled
+                                        "incident_issue_name": incident_issue_name
                                     });
                                 }
                                 return incidents;
@@ -164,13 +162,11 @@
 
                 function find_incident_element(report, incident_description) {
                     var report_data = report["data"];
-                    var incident_description_div = document.createElement("div");
 
                     for (var category in report_data) {
                         for (var severity in report_data[category]) {
                             for (var description in report_data[category][severity]) {
-                                incident_description_div.innerHTML = report_data[category][severity][description].data;
-                                if (incident_description == incident_description_div.innerHTML){
+                                if ($(incident_description).text() == report_data[category][severity][description].data){
                                     return report_data[category][severity][description];
                                 }
                             }
@@ -212,17 +208,6 @@
 
                 $("select.form-control").on("change", function() {
                     var incident_status = this.value;
-                    var ticket_url = $(this.parentNode.parentNode).find("textarea")[0];
-                    if (incident_status === "To Do") {
-                        $(ticket_url).attr("disabled", false);
-                    } else if (incident_status === "In Progress") {
-                        $(ticket_url).attr("disabled", false);
-                    } else if (incident_status === "Done") {
-                        $(ticket_url).attr("disabled", true);
-                    } else if (incident_status === "False") {
-                        $(ticket_url).val("");
-                        $(ticket_url).attr("disabled", true);
-                    }
                     var incident_description = $(this.parentNode.parentNode).children("[class*='incident_description']")[0].innerHTML;
                     var incident_element = find_incident_element(report, incident_description);
                     incident_element.metadata = incident_element.metadata || {};
@@ -249,7 +234,7 @@
                     });
                 });
 
-                $("button[id^=save_changes]").on("click", function() {
+                $("button[id^=update_issues]").on("click", function() {
                     $.ajax({
                         url: "{{ report_url }}",
                         data: JSON.stringify({
@@ -313,7 +298,7 @@
             </div>
             <div class="row">
                 <nav class="navbar navbar-default navbar-fixed-bottom text-center">
-                    <button type="button" class="btn btn-success" id="save_changes">Save Changes</button>
+                    <button type="button" class="btn btn-success" id="update_issues">Update</button>
                 </nav>
             </div>
         </div>

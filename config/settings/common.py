@@ -208,8 +208,8 @@ WASPC = {
         'jira': {
             'server': 'https://zensec.atlassian.net',
             'project': 'IR',
-            'username': 'admin',
-            'password': 'adminadmin'
+            'username': 'mailto',
+            'password': 'mailtomailto'
         }
     }
 }
