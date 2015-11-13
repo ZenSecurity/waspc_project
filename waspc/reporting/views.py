@@ -150,9 +150,9 @@ def update_jira_issues(report):
                                 report_metadata.get('module'),
                                 report_metadata.get('target_url')
                             ),
-                            description='{description} {incident_data}'.format(
-                                description=report_metadata.get(category).get('description'),
-                                incident_data=incident.get('data')
+                            description=u'{category_description} {incident_description}'.format(
+                                category_description=report_metadata.get(category).get('description'),
+                                incident_description=incident.get('data')
                             ),
                             issuetype={'name': issue_type},
                             priority={'name': issues_priority[severity]}
