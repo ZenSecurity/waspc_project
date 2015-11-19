@@ -1,8 +1,8 @@
-# Bleeding edge Django
-django
+# Django framework
+django==1.8.5
 
 # For periodic tasks
-django-celery
+django-celery==3.1.16
 
 # JSON field support
 django-jsonfield
