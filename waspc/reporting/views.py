@@ -109,7 +109,7 @@ def get_report_severity(report):
         for severity in report_data[category]:
             severity_status = 'Done'
             for incident in report_data[category][severity]:
-                incident_status = incident.get('metadata', {}).get('status', 'To Do')
+                incident_status = incident.get('metadata', {}).get('issue_status', 'To Do')
                 severity_status = 'To Do' if incident_status == 'To Do' else severity_status
             if severity_status == 'To Do':
                 severity_value = severities_values[severity]
@@ -128,7 +128,6 @@ def update_jira_issues(report):
         'medium': 'Medium',
         'high': 'High'
     }
-    issues_status = ('To Do', 'In Progress', 'Done')
 
     report_data = report.get('data')
     report_metadata = report.get('metadata')
@@ -136,13 +135,13 @@ def update_jira_issues(report):
         for severity in report_data[category]:
             for incident in report_data[category][severity]:
                 incident_metadata = incident.get('metadata', {})
-                incident_status = incident_metadata.get('status')
-                if incident_status == 'To Do':
+                incident_status = incident_metadata.get('reporting_status')
+                if incident_status == 'done':
                     connection = APIConnector()
                     if incident_metadata.get('issue_url'):
                         issues_url = incident_metadata.get('issue_url')
                         issue_name = issues_url.split('/')[-1]
-                        incident_metadata['status'] = connection.issue(issue_name).fields.status.name
+                        incident_metadata['issue_status'] = connection.issue(issue_name).fields.status.name
                     else:
                         new_issue = connection.create_issue(
                             project={'key': project_name},
@@ -160,12 +159,12 @@ def update_jira_issues(report):
                             priority={'name': issues_priority[severity]}
                         )
                         incident_metadata['issue_url'] = new_issue.permalink()
-                elif incident_status in issues_status:
+                elif incident_metadata['reporting_status'] != 'false':
                     issues_url = incident_metadata.get('issue_url')
                     if issues_url:
                         issue_name = issues_url.split('/')[-1]
                         connection = APIConnector()
-                        incident_metadata['status'] = connection.issue(issue_name).fields.status.name
+                        incident_metadata['issue_status'] = connection.issue(issue_name).fields.status.name
     return report
 
 

@@ -1,0 +1,182 @@
+                    <div class="row">
+                        <div class="panel panel-danger" ng-repeat="panel in reporting.severity_panels.high">
+                            <div class="panel-heading">
+                                <div class="row">
+                                    <span class="glyphicon glyphicon-minus col-md-1" aria-hidden="true"></span>
+                                    <div class="text-danger text-uppercase col-md-3">
+                                        <span class="badge badge-danger">{{panel.incidents.length}}</span>
+                                    </div>
+                                    <div class="col-md-8">{{panel.category_name}}</div>
+                                </div>
+                            </div>
+                            <div class="panel-body">
+                                <section>
+                                    <h5>Description</h5>
+                                    <p>{{panel.category_description}}</p>
+                                </section>
+                                <table class="table table-condensed table-striped table-hover">
+                                    <thead>
+                                    <tr>
+                                        <th class="col-md-1 text-center">
+                                            <input type="checkbox" ng-model="panel.allChecked">
+                                        </th>
+                                        <th class="col-md-1">#</th>
+                                        <th class="col-md-7">Description</th>
+                                        <th class="col-md-2">Issue</th>
+                                        <th class="col-md-1">Status</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr ng-repeat="incident in panel.incidents" ng-class="{'incident-hover': incident.metadata.checked}">
+                                        <th class="col-md-1 text-center">
+                                            <input type="checkbox" ng-model="incident.metadata.checked">
+                                        </th>
+                                        <th class="col-md-1">{{$index+1}}</th>
+                                        <td class="col-md-7">{{incident.data}}</td>
+                                        <td class="col-md-2">
+                                            <a href={{incident.metadata.url}} target="_blank">{{incident.metadata.url | issueTitle}}</a>
+                                        </td>
+                                        <td class="col-md-1">
+                                            <span class="label label-primary">{{incident.metadata.status}}</span>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="panel panel-warning" ng-repeat="panel in reporting.severity_panels.medium">
+                            <div class="panel-heading">
+                                <div class="row">
+                                    <span class="glyphicon glyphicon-minus col-md-1" aria-hidden="true"></span>
+                                    <div class="text-warning text-uppercase col-md-3">
+                                        <span class="badge badge-warning">{{panel.incidents.length}}</span>
+                                    </div>
+                                    <div class="col-md-8">{{panel.category_name}}</div>
+                                </div>
+                            </div>
+                            <div class="panel-body">
+                                <section>
+                                    <h5>Description</h5>
+                                    <p>{{panel.category_description}}</p>
+                                </section>
+                                <table class="table table-condensed table-striped table-hover">
+                                    <thead>
+                                    <tr>
+                                        <th class="col-md-1 text-center">
+                                            <input type="checkbox" ng-click="reporting.mark_checked(panel)">
+                                        </th>
+                                        <th class="col-md-1">#</th>
+                                        <th class="col-md-7">Description</th>
+                                        <th class="col-md-2">Issue</th>
+                                        <th class="col-md-1">Status</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr ng-repeat="incident in panel.incidents" ng-class="{'incident-hover': incident.metadata.checked}">
+                                        <th class="col-md-1 text-center">
+                                            <input type="checkbox" ng-model="incident.metadata.checked">
+                                        </th>
+                                        <th class="col-md-1">{{$index+1}}</th>
+                                        <td class="col-md-7">{{incident.data}}</td>
+                                        <td class="col-md-2">
+                                            <a href={{incident.metadata.url}} target="_blank">{{incident.metadata.url | issueTitle}}</a>
+                                        </td>
+                                        <td class="col-md-1">
+                                            <span class="label label-primary">{{incident.metadata.status}}</span>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="panel panel-info" ng-repeat="panel in reporting.severity_panels.low">
+                            <div class="panel-heading">
+                                <div class="row">
+                                    <span class="glyphicon glyphicon-minus col-md-1" aria-hidden="true"></span>
+                                    <div class="text-info text-uppercase col-md-3">
+                                        <span class="badge badge-info">{{panel.incidents.length}}</span>
+                                    </div>
+                                    <div class="col-md-8">{{panel.category_name}}</div>
+                                </div>
+                            </div>
+                            <div class="panel-body">
+                                <section>
+                                    <h5>Description</h5>
+                                    <p>{{panel.category_description}}</p>
+                                </section>
+                                <table class="table table-condensed table-striped table-hover">
+                                    <thead>
+                                    <tr>
+                                        <th class="col-md-1 text-center">
+                                            <input type="checkbox">
+                                        </th>
+                                        <th class="col-md-1">#</th>
+                                        <th class="col-md-7">Description</th>
+                                        <th class="col-md-2">Issue</th>
+                                        <th class="col-md-1">Status</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr ng-repeat="incident in panel.incidents" ng-class="{'incident-hover': incident.metadata.checked}">
+                                        <th class="col-md-1 text-center">
+                                            <input type="checkbox" ng-model="incident.metadata.checked">
+                                        </th>
+                                        <th class="col-md-1">{{$index+1}}</th>
+                                        <td class="col-md-7">{{incident.data}}</td>
+                                        <td class="col-md-2">
+                                            <a href={{incident.metadata.url}} target="_blank">{{incident.metadata.url | issueTitle}}</a>
+                                        </td>
+                                        <td class="col-md-1">
+                                            <span class="label label-primary">{{incident.metadata.status}}</span>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="panel panel-default" ng-repeat="panel in reporting.severity_panels.information">
+                            <div class="panel-heading">
+                                <div class="row">
+                                    <span class="glyphicon glyphicon-minus col-md-1" aria-hidden="true"></span>
+                                    <div class="text-default text-uppercase col-md-3">
+                                        <span class="badge badge-default">{{panel.incidents.length}}</span>
+                                    </div>
+                                    <div class="col-md-8">{{panel.category_name}}</div>
+                                </div>
+                            </div>
+                            <div class="panel-body">
+                                <section>
+                                    <h5>Description</h5>
+                                    <p>{{panel.category_description}}</p>
+                                </section>
+                                <table class="table table-condensed table-striped table-hover">
+                                    <thead>
+                                    <tr>
+                                        <th class="col-md-1 text-center">
+                                            <input type="checkbox">
+                                        </th>
+                                        <th class="col-md-1">#</th>
+                                        <th class="col-md-7">Description</th>
+                                        <th class="col-md-2">Issue</th>
+                                        <th class="col-md-1">Status</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr ng-repeat="incident in panel.incidents" ng-class="{'incident-hover': incident.metadata.checked}">
+                                        <th class="col-md-1 text-center">
+                                            <input type="checkbox" ng-model="incident.metadata.checked">
+                                        </th>
+                                        <th class="col-md-1">{{$index+1}}</th>
+                                        <td class="col-md-7">{{incident.data}}</td>
+                                        <td class="col-md-2">
+                                            <a href={{incident.metadata.url}} target="_blank">{{incident.metadata.url | issueTitle}}</a>
+                                        </td>
+                                        <td class="col-md-1">
+                                            <span class="label label-primary">{{incident.metadata.status}}</span>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
