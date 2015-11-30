@@ -98,6 +98,8 @@
                             for (var incident of panel.incidents) {
                                 if (incident.metadata && incident.metadata.checked) {
                                     if (incident.metadata.reporting_status === 'false') {
+                                        incident.metadata.issue_url = '';
+                                        incident.metadata.issue_status = '';
                                         incident.metadata.reporting_status = 'pending';
                                     } else {
                                         incident.metadata.reporting_status = 'false';
@@ -112,11 +114,11 @@
                         "report": this.report.result
                     };
 
+                    alert('Wait until page refresh');
+
                     $http.put(this.report.url, payload).then(function (response){
                         location.reload();
                     });
-
-                    alert('Wait until page refresh');
                 };
                 this.create_issue = function() {
                     for (var severity in this.severity_panels) {
@@ -146,11 +148,14 @@
                         "report": this.report.result
                     };
 
+                    alert('Wait until page refresh');
+
                     $http.put(this.report.url, payload).then(function (response){
                         location.reload();
                     });
-
-                    alert('Wait until page refresh');
+                };
+                this.test = function(name) {
+                  console.log(name);
                 };
             }]);
 

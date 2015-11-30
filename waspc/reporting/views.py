@@ -2,6 +2,7 @@ from .models import Notification, Report
 from .serializers import (ReportSerializer,
                           LogstashReportSerializer,
                           NotificationSerializer)
+from django.conf import settings
 from django.http import HttpResponseRedirect, HttpResponseNotFound
 from django.views.generic.base import TemplateView
 from operator import itemgetter
@@ -10,7 +11,7 @@ from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.status import HTTP_200_OK, HTTP_204_NO_CONTENT
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
-from waspc.contrib.jira.connector import APIConnector
+from waspc.contrib.jira.connector import APIConnector, JIRAError
 
 
 def get_reports_difference(new_report, old_report):
@@ -119,53 +120,108 @@ def get_report_severity(report):
 
 
 def update_jira_issues(report):
-
-    issue_type = 'Task'
-    project_name = 'IR'
-    issues_priority = {
-        'information': 'Lowest',
-        'low': 'Low',
-        'medium': 'Medium',
-        'high': 'High'
-    }
+    issue_description = ''
+    incidents_metadatas = []
 
     report_data = report.get('data')
     report_metadata = report.get('metadata')
+
     for category in report_data:
+        category_incidents_descriptions = ''
         for severity in report_data[category]:
             for incident in report_data[category][severity]:
                 incident_metadata = incident.get('metadata', {})
-                incident_status = incident_metadata.get('reporting_status')
-                if incident_status == 'done':
-                    connection = APIConnector()
-                    if incident_metadata.get('issue_url'):
-                        issues_url = incident_metadata.get('issue_url')
-                        issue_name = issues_url.split('/')[-1]
-                        incident_metadata['issue_status'] = connection.issue(issue_name).fields.status.name
-                    else:
-                        new_issue = connection.create_issue(
-                            project={'key': project_name},
-                            summary='{} {}'.format(
-                                report_metadata.get('module'),
-                                report_metadata.get('target_url')
-                            ),
-                            description=u"""{category_description}
+                incident_reporting_status = incident_metadata.get('reporting_status')
+                incident_issue_status = incident_metadata.get('issue_status', '')
+                if incident_reporting_status == 'done' and not incident_issue_status:
+                    category_incidents_descriptions = u"""{previous_incidents_descriptions}
 
-                            {incident_description}""".format(
-                                category_description=report_metadata.get(category).get('description'),
-                                incident_description=incident.get('data')
-                            ),
-                            issuetype={'name': issue_type},
-                            priority={'name': issues_priority[severity]}
-                        )
-                        incident_metadata['issue_url'] = new_issue.permalink()
-                elif incident_metadata['reporting_status'] != 'false':
+                    {new_incident_description}""".format(
+                        previous_incidents_descriptions=category_incidents_descriptions,
+                        new_incident_description=incident.get('data')
+                    )
+                    incidents_metadatas.append(incident_metadata)
+                else:
                     issues_url = incident_metadata.get('issue_url')
                     if issues_url:
                         issue_name = issues_url.split('/')[-1]
                         connection = APIConnector()
-                        incident_metadata['issue_status'] = connection.issue(issue_name).fields.status.name
+                        try:
+                            incident_metadata['issue_status'] = connection.issue(issue_name).fields.status.name
+                        except JIRAError:
+                            print incident_metadata
+
+        if category_incidents_descriptions:
+            issue_description = u"""{previous_category}
+
+
+            {new_category_description}
+
+            {new_category_incidents_descriptions}
+            """.format(
+                previous_category=issue_description,
+                new_category_description=report_metadata.get(category).get('description'),
+                new_category_incidents_descriptions=category_incidents_descriptions
+            )
+
+    if issue_description:
+        connection = APIConnector()
+        new_issue = connection.create_issue(
+            project={'key': settings.WASPC['reporting']['jira']['project']},
+            summary='{module} {target_url}'.format(
+                module=report_metadata.get('module'),
+                target_url=report_metadata.get('target_url')
+            ),
+            description=issue_description,
+            issuetype={'name': settings.WASPC['reporting']['jira']['issue_type']},
+            priority={'name': settings.WASPC['reporting']['jira']['issues_priority']['low']}
+            # priority={'name': settings.WASPC['reporting']['jira']['issues_priority'][severity]}
+        )
+
+        for incident_metadata in incidents_metadatas:
+            incident_metadata['issue_url'] = new_issue.permalink()
+            incident_metadata['issue_status'] = new_issue.fields.status.name
+
     return report
+
+
+    # report_data = report.get('data')
+    # report_metadata = report.get('metadata')
+    # for category in report_data:
+    #     for severity in report_data[category]:
+    #         for incident in report_data[category][severity]:
+    #             incident_metadata = incident.get('metadata', {})
+    #             incident_status = incident_metadata.get('reporting_status')
+    #             if incident_status == 'done':
+    #                 connection = APIConnector()
+    #                 if incident_metadata.get('issue_url'):
+    #                     issues_url = incident_metadata.get('issue_url')
+    #                     issue_name = issues_url.split('/')[-1]
+    #                     incident_metadata['issue_status'] = connection.issue(issue_name).fields.status.name
+    #                 else:
+    #                     new_issue = connection.create_issue(
+    #                         project={'key': project_name},
+    #                         summary='{} {}'.format(
+    #                             report_metadata.get('module'),
+    #                             report_metadata.get('target_url')
+    #                         ),
+    #                         description=u"""{category_description}
+    #
+    #                         {incident_description}""".format(
+    #                             category_description=report_metadata.get(category).get('description'),
+    #                             incident_description=incident.get('data')
+    #                         ),
+    #                         issuetype={'name': issue_type},
+    #                         priority={'name': issues_priority[severity]}
+    #                     )
+    #                     incident_metadata['issue_url'] = new_issue.permalink()
+    #             elif incident_metadata['reporting_status'] != 'false':
+    #                 issues_url = incident_metadata.get('issue_url')
+    #                 if issues_url:
+    #                     issue_name = issues_url.split('/')[-1]
+    #                     connection = APIConnector()
+    #                     incident_metadata['issue_status'] = connection.issue(issue_name).fields.status.name
+    # return report
 
 
 class ProcessReportTemplateView(TemplateView):

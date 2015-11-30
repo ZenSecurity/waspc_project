@@ -1,5 +1,5 @@
 from django.conf import settings
-from jira import JIRA
+from jira import JIRA, JIRAError
 
 
 class Singleton(object):
