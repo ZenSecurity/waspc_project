@@ -13,12 +13,14 @@
 
         <script src="/static/reporting/js/jquery-2.1.4.min.js" type="text/javascript"></script>
         <script src="/static/reporting/js/bootstrap-3.3.5.min.js" type="text/javascript"></script>
+        <script src="/static/reporting/js/marked-0.3.4.js" type="text/javascript"></script>
         <script src="/static/reporting/js/angular-1.5.0-beta.2/angular.js" type="text/javascript"></script>
+        <script src="/static/reporting/js/angular-1.5.0-beta.2/angular-sanitize.js" type="text/javascript"></script>
 
         <script>
             var app = angular.module('reporting', []);
 
-            app.controller('ReportController', ['$http', function($http) {
+            app.controller('ReportController', ['$filter', '$http', function($filter, $http) {
                 {% load jsonify %}
 
                 this.report = {
@@ -154,9 +156,23 @@
                         location.reload();
                     });
                 };
-                this.test = function(name) {
-                  console.log(name);
+
+                this.sort_reporting_status = function(incident) {
+                    if (incident.metadata) {
+                        if (incident.metadata.reporting_status) {
+                            return incident.metadata.reporting_status;
+                        }
+                    }
+                    return '';
                 };
+
+                this.find_panel_incident = function(panel, incident) {
+                    for (var index = 0; index < panel.incidents.length; index++) {
+                        if (incident === panel.incidents[index]) {
+                            return index+1;
+                        }
+                    }
+                }
             }]);
 
             app.filter('issueTitle', function() {
@@ -164,6 +180,19 @@
                     return input ? input.split('/').slice(-1).pop(): input;
                 }
             });
+            app.filter('marked', ['$sce', function($sce) {
+                return function(input) {
+                    var renderer = new marked.Renderer();
+                    renderer.heading = function(text, level) {
+                        return `<h5>${text}</h5>`;
+                    };
+                    renderer.link = function(href, title, text) {
+                        return `<a href="${href}" target="_blank">${href}</a>`;
+                    };
+
+                    return $sce.trustAsHtml(marked(input, { renderer: renderer }));
+                }
+            }]);
         </script>
         <style>
             .panel-heading {
@@ -186,7 +215,6 @@
             .incident-hover {
                 background-color: #E8F5E9 !important;
             }
-
         </style>
     </head>
     {% verbatim %}
@@ -227,7 +255,7 @@
                             <div class="panel-body" ng-hide="panel.isHidden">
                                 <section>
                                     <h5>Description</h5>
-                                    <p>{{panel.category_description}}</p>
+                                    <p ng-bind-html="panel.category_description | marked"></p>
                                 </section>
                                 <table class="table table-condensed table-striped table-hover">
                                     <thead>
@@ -238,18 +266,16 @@
                                         <th class="col-md-1">#</th>
                                         <th class="col-md-7">Description</th>
                                         <th class="col-md-2">Issue</th>
-                                        <th class="col-md-1">Status</th>
+                                        <th class="col-md-1" ng-click="panel.reverseReportingStatus = !panel.reverseReportingStatus">Status <i class="glyphicon glyphicon-sort"></i></th>
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    <tr ng-repeat="incident in panel.incidents" ng-click="incident.metadata.checked = !incident.metadata.checked" ng-class="{'incident-hover': incident.metadata.checked}">
+                                    <tr ng-repeat="incident in panel.incidents | orderBy: reporting.sort_reporting_status : panel.reverseReportingStatus" ng-click="incident.metadata.checked = !incident.metadata.checked" ng-class="{'incident-hover': incident.metadata.checked}">
                                         <th class="col-md-1 text-center">
                                             <input type="checkbox" ng-checked="incident.metadata.checked">
                                         </th>
-                                        <th class="col-md-1">{{$index+1}}</th>
-                                        <td class="col-md-7">
-                                            {{incident.data}}
-                                        </td>
+                                        <th class="col-md-1">{{reporting.find_panel_incident(panel, incident)}}</th>
+                                        <td class="col-md-7" ng-bind-html="incident.data | marked"></td>
                                         <td class="col-md-2">
                                             <a href={{incident.metadata.issue_url}} target="_blank">
                                                 {{incident.metadata.issue_url | issueTitle}}
@@ -270,7 +296,7 @@
                                     <label for="issueDescription">Submit issue description</label>
                                     <textarea type="text" class="form-control" id="issueDescription" autofocus="autofocus" rows="15" ng-model="reporting.issue_incidents">{{reporting.issue_incidents}}</textarea>
                                 </div>
-                                <pre>{{reporting.issue_incidents}}</pre>
+                                <pre ng-bind-html="reporting.issue_incidents | marked"></pre>
                                 <button type="button" class="btn btn-primary" ng-click="reporting.show_panels = true; reporting.issue_incidents=''">Back</button>
                                 <button type="submit" class="btn btn-primary">Submit</button>
                             </form>
