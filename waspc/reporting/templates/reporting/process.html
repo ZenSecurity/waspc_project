@@ -229,6 +229,9 @@
                         Module: {{reporting.report.result.metadata.module}}
                     </li>
                     <li>
+                        Target: {{reporting.report.result.metadata.target_url}}
+                    </li>
+                    <li>
                         Datetime: {{reporting.report.modified}}
                     </li>
                     <li>
@@ -242,6 +245,54 @@
             <div id="page-content-wrapper">
                 <div class="container-fluid">
                     <div class="row">
+                        <div class="panel panel-danger" ng-repeat="panel in reporting.severity_panels.high" ng-show="reporting.show_panels">
+                            <div class="panel-heading" ng-click="panel.isHidden = !panel.isHidden">
+                                <div class="row">
+                                    <span class="glyphicon col-md-1" aria-hidden="true" ng-class="{'glyphicon-minus': !panel.isHidden, 'glyphicon-plus': panel.isHidden}"></span>
+                                    <div class="text-danger text-uppercase col-md-3">
+                                        High <span class="badge badge-danger">{{panel.incidents.length}}</span>
+                                    </div>
+                                    <div class="col-md-8">{{panel.category_name}}</div>
+                                </div>
+                            </div>
+                            <div class="panel-body" ng-hide="panel.isHidden">
+                                <section>
+                                    <h5>Description</h5>
+                                    <p ng-bind-html="panel.category_description | marked"></p>
+                                </section>
+                                <table class="table table-condensed table-striped table-hover">
+                                    <thead>
+                                    <tr>
+                                        <th class="col-md-1 text-center">
+                                            <input type="checkbox" ng-checked="reporting.main_checkbox_status(panel)" ng-click="reporting.mark_all_incidents(panel)">
+                                        </th>
+                                        <th class="col-md-1">#</th>
+                                        <th class="col-md-7">Description</th>
+                                        <th class="col-md-2">Issue</th>
+                                        <th class="col-md-1" ng-click="panel.reverseReportingStatus = !panel.reverseReportingStatus">Status <i class="glyphicon glyphicon-sort"></i></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr ng-repeat="incident in panel.incidents | orderBy: reporting.sort_reporting_status : panel.reverseReportingStatus" ng-click="incident.metadata.checked = !incident.metadata.checked" ng-class="{'incident-hover': incident.metadata.checked}">
+                                        <th class="col-md-1 text-center">
+                                            <input type="checkbox" ng-checked="incident.metadata.checked">
+                                        </th>
+                                        <th class="col-md-1">{{reporting.find_panel_incident(panel, incident)}}</th>
+                                        <td class="col-md-7" ng-bind-html="incident.data | marked"></td>
+                                        <td class="col-md-2">
+                                            <a href={{incident.metadata.issue_url}} target="_blank">
+                                                {{incident.metadata.issue_url | issueTitle}}
+                                            </a>
+                                            <span class="label label-info">{{incident.metadata.issue_status | uppercase}}</span>
+                                        </td>
+                                        <td class="col-md-1">
+                                            <span class="label" ng-init="incident.metadata.reporting_status = incident.metadata.reporting_status || 'pending'" ng-class="{'label-default': (incident.metadata.reporting_status === 'pending'), 'label-success': (incident.metadata.reporting_status === 'done'), 'label-danger': (incident.metadata.reporting_status === 'false')}">{{incident.metadata.reporting_status | uppercase}}</span>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                         <div class="panel panel-warning" ng-repeat="panel in reporting.severity_panels.medium" ng-show="reporting.show_panels">
                             <div class="panel-heading" ng-click="panel.isHidden = !panel.isHidden">
                                 <div class="row">
@@ -290,6 +341,103 @@
                                 </table>
                             </div>
                         </div>
+                        <div class="panel panel-info" ng-repeat="panel in reporting.severity_panels.low" ng-show="reporting.show_panels">
+                            <div class="panel-heading" ng-click="panel.isHidden = !panel.isHidden">
+                                <div class="row">
+                                    <span class="glyphicon col-md-1" aria-hidden="true" ng-class="{'glyphicon-minus': !panel.isHidden, 'glyphicon-plus': panel.isHidden}"></span>
+                                    <div class="text-info text-uppercase col-md-3">
+                                        Low <span class="badge badge-info">{{panel.incidents.length}}</span>
+                                    </div>
+                                    <div class="col-md-8">{{panel.category_name}}</div>
+                                </div>
+                            </div>
+                            <div class="panel-body" ng-hide="panel.isHidden">
+                                <section>
+                                    <h5>Description</h5>
+                                    <p ng-bind-html="panel.category_description | marked"></p>
+                                </section>
+                                <table class="table table-condensed table-striped table-hover">
+                                    <thead>
+                                    <tr>
+                                        <th class="col-md-1 text-center">
+                                            <input type="checkbox" ng-checked="reporting.main_checkbox_status(panel)" ng-click="reporting.mark_all_incidents(panel)">
+                                        </th>
+                                        <th class="col-md-1">#</th>
+                                        <th class="col-md-7">Description</th>
+                                        <th class="col-md-2">Issue</th>
+                                        <th class="col-md-1" ng-click="panel.reverseReportingStatus = !panel.reverseReportingStatus">Status <i class="glyphicon glyphicon-sort"></i></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr ng-repeat="incident in panel.incidents | orderBy: reporting.sort_reporting_status : panel.reverseReportingStatus" ng-click="incident.metadata.checked = !incident.metadata.checked" ng-class="{'incident-hover': incident.metadata.checked}">
+                                        <th class="col-md-1 text-center">
+                                            <input type="checkbox" ng-checked="incident.metadata.checked">
+                                        </th>
+                                        <th class="col-md-1">{{reporting.find_panel_incident(panel, incident)}}</th>
+                                        <td class="col-md-7" ng-bind-html="incident.data | marked"></td>
+                                        <td class="col-md-2">
+                                            <a href={{incident.metadata.issue_url}} target="_blank">
+                                                {{incident.metadata.issue_url | issueTitle}}
+                                            </a>
+                                            <span class="label label-info">{{incident.metadata.issue_status | uppercase}}</span>
+                                        </td>
+                                        <td class="col-md-1">
+                                            <span class="label" ng-init="incident.metadata.reporting_status = incident.metadata.reporting_status || 'pending'" ng-class="{'label-default': (incident.metadata.reporting_status === 'pending'), 'label-success': (incident.metadata.reporting_status === 'done'), 'label-danger': (incident.metadata.reporting_status === 'false')}">{{incident.metadata.reporting_status | uppercase}}</span>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="panel panel-default" ng-repeat="panel in reporting.severity_panels.information" ng-show="reporting.show_panels">
+                            <div class="panel-heading" ng-click="panel.isHidden = !panel.isHidden">
+                                <div class="row">
+                                    <span class="glyphicon col-md-1" aria-hidden="true" ng-class="{'glyphicon-minus': !panel.isHidden, 'glyphicon-plus': panel.isHidden}"></span>
+                                    <div class="text-default text-uppercase col-md-3">
+                                        Information <span class="badge badge-default">{{panel.incidents.length}}</span>
+                                    </div>
+                                    <div class="col-md-8">{{panel.category_name}}</div>
+                                </div>
+                            </div>
+                            <div class="panel-body" ng-hide="panel.isHidden">
+                                <section>
+                                    <h5>Description</h5>
+                                    <p ng-bind-html="panel.category_description | marked"></p>
+                                </section>
+                                <table class="table table-condensed table-striped table-hover">
+                                    <thead>
+                                    <tr>
+                                        <th class="col-md-1 text-center">
+                                            <input type="checkbox" ng-checked="reporting.main_checkbox_status(panel)" ng-click="reporting.mark_all_incidents(panel)">
+                                        </th>
+                                        <th class="col-md-1">#</th>
+                                        <th class="col-md-7">Description</th>
+                                        <th class="col-md-2">Issue</th>
+                                        <th class="col-md-1" ng-click="panel.reverseReportingStatus = !panel.reverseReportingStatus">Status <i class="glyphicon glyphicon-sort"></i></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr ng-repeat="incident in panel.incidents | orderBy: reporting.sort_reporting_status : panel.reverseReportingStatus" ng-click="incident.metadata.checked = !incident.metadata.checked" ng-class="{'incident-hover': incident.metadata.checked}">
+                                        <th class="col-md-1 text-center">
+                                            <input type="checkbox" ng-checked="incident.metadata.checked">
+                                        </th>
+                                        <th class="col-md-1">{{reporting.find_panel_incident(panel, incident)}}</th>
+                                        <td class="col-md-7" ng-bind-html="incident.data | marked"></td>
+                                        <td class="col-md-2">
+                                            <a href={{incident.metadata.issue_url}} target="_blank">
+                                                {{incident.metadata.issue_url | issueTitle}}
+                                            </a>
+                                            <span class="label label-info">{{incident.metadata.issue_status | uppercase}}</span>
+                                        </td>
+                                        <td class="col-md-1">
+                                            <span class="label" ng-init="incident.metadata.reporting_status = incident.metadata.reporting_status || 'pending'" ng-class="{'label-default': (incident.metadata.reporting_status === 'pending'), 'label-success': (incident.metadata.reporting_status === 'done'), 'label-danger': (incident.metadata.reporting_status === 'false')}">{{incident.metadata.reporting_status | uppercase}}</span>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
                         <div ng-hide="reporting.show_panels">
                             <form ng-submit="reporting.submit_issue()">
                                 <div class="form-group">
