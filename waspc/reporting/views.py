@@ -185,45 +185,6 @@ def update_jira_issues(report):
     return report
 
 
-    # report_data = report.get('data')
-    # report_metadata = report.get('metadata')
-    # for category in report_data:
-    #     for severity in report_data[category]:
-    #         for incident in report_data[category][severity]:
-    #             incident_metadata = incident.get('metadata', {})
-    #             incident_status = incident_metadata.get('reporting_status')
-    #             if incident_status == 'done':
-    #                 connection = APIConnector()
-    #                 if incident_metadata.get('issue_url'):
-    #                     issues_url = incident_metadata.get('issue_url')
-    #                     issue_name = issues_url.split('/')[-1]
-    #                     incident_metadata['issue_status'] = connection.issue(issue_name).fields.status.name
-    #                 else:
-    #                     new_issue = connection.create_issue(
-    #                         project={'key': project_name},
-    #                         summary='{} {}'.format(
-    #                             report_metadata.get('module'),
-    #                             report_metadata.get('target_url')
-    #                         ),
-    #                         description=u"""{category_description}
-    #
-    #                         {incident_description}""".format(
-    #                             category_description=report_metadata.get(category).get('description'),
-    #                             incident_description=incident.get('data')
-    #                         ),
-    #                         issuetype={'name': issue_type},
-    #                         priority={'name': issues_priority[severity]}
-    #                     )
-    #                     incident_metadata['issue_url'] = new_issue.permalink()
-    #             elif incident_metadata['reporting_status'] != 'false':
-    #                 issues_url = incident_metadata.get('issue_url')
-    #                 if issues_url:
-    #                     issue_name = issues_url.split('/')[-1]
-    #                     connection = APIConnector()
-    #                     incident_metadata['issue_status'] = connection.issue(issue_name).fields.status.name
-    # return report
-
-
 class ProcessReportTemplateView(TemplateView):
     template_name = 'reporting/process.html'
 
