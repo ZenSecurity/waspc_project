@@ -48,7 +48,6 @@ Create a local PostgreSQL database with granted user
     # Ubuntu, begin
     $(venv) sudo /etc/init.d/postgresql start
     $(venv) sudo su postgres -c './flushdb.sh'
-    $(venv) exit
     # Ubuntu, end
 
     # OSX, begin
