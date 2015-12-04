@@ -126,6 +126,13 @@ def update_jira_issues(report):
     if jira_issue_description:
         connection = APIConnector()
 
+        # def get_jira_severity_for_issue(report):
+        #     issues_priority = settings.WASPC['reporting']['jira']['issues_priority']
+        #     issue_priority = issues_priority['information']
+        #     for category in report_data:
+        #         for severity in report_data[category]:
+        #             severity_value = issues_priority[severity]
+
         new_issue = connection.create_issue(
             project={'key': settings.WASPC['reporting']['jira']['project']},
             summary='{module} {target_url}'.format(
