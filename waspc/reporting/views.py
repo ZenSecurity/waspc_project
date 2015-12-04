@@ -110,8 +110,10 @@ def get_report_severity(report):
     for category in report_data:
         for severity in report_data[category]:
             severity_value = severities_values[severity]
-            if report_data[category][severity] and severity_value > report_severity_value:
-                report_severity_value = severity_value
+            for incident in report_data[category][severity]:
+                incident_status = incident.get('metadata', {}).get('reporting_status', 'pending')
+                if incident_status == 'pending' and severity_value > report_severity_value:
+                    report_severity_value = severity_value
 
     return report_severity_value
 
@@ -126,12 +128,14 @@ def update_jira_issues(report):
     if jira_issue_description:
         connection = APIConnector()
 
-        # def get_jira_severity_for_issue(report):
-        #     issues_priority = settings.WASPC['reporting']['jira']['issues_priority']
-        #     issue_priority = issues_priority['information']
-        #     for category in report_data:
-        #         for severity in report_data[category]:
-        #             severity_value = issues_priority[severity]
+        def get_jira_severity_for_issue(report):
+            issues_priority = settings.WASPC['reporting']['jira']['issues_priority']
+            issue_priority = issues_priority['medium']
+            for category in report_data:
+                for severity in report_data[category]:
+                    severity_value = issues_priority[severity]
+
+            return issue_priority
 
         new_issue = connection.create_issue(
             project={'key': settings.WASPC['reporting']['jira']['project']},
@@ -141,8 +145,7 @@ def update_jira_issues(report):
             ),
             description=jira_issue_description,
             issuetype={'name': settings.WASPC['reporting']['jira']['issue_type']},
-            priority={'name': settings.WASPC['reporting']['jira']['issues_priority']['low']},
-            # priority={'name': settings.WASPC['reporting']['jira']['issues_priority'][severity]}
+            priority={'name': get_jira_severity_for_issue(report)}
         )
 
         new_issue_permalink = new_issue.permalink()
