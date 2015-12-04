@@ -126,17 +126,32 @@ def update_jira_issues(report):
     new_issue_status = ''
 
     if jira_issue_description:
-        connection = APIConnector()
 
-        def get_jira_severity_for_issue(report):
+        def get_new_issue_priority(report):
             issues_priority = settings.WASPC['reporting']['jira']['issues_priority']
-            issue_priority = issues_priority['medium']
+
+            severities_values = {
+                'information': 1,
+                'low': 2,
+                'medium': 3,
+                'high': 4
+            }
+
+            issue_priority = severities_values['information']
+
             for category in report_data:
                 for severity in report_data[category]:
-                    severity_value = issues_priority[severity]
+                    for incident in report_data[category][severity]:
+                        incident_status = incident.get('metadata', {}).get('reporting_status', 'pending')
+                        incident_url = incident.get('metadata', {}).get('issue_url')
+                        if incident_status == 'done' and not incident_url and severities_values[severity] > issue_priority:
+                            issue_priority = severities_values[severity]
 
-            return issue_priority
+            severities_values = {value: key for key, value in severities_values.items()}
 
+            return issues_priority[severities_values[issue_priority]]
+
+        connection = APIConnector()
         new_issue = connection.create_issue(
             project={'key': settings.WASPC['reporting']['jira']['project']},
             summary='{module} {target_url}'.format(
@@ -145,7 +160,7 @@ def update_jira_issues(report):
             ),
             description=jira_issue_description,
             issuetype={'name': settings.WASPC['reporting']['jira']['issue_type']},
-            priority={'name': get_jira_severity_for_issue(report)}
+            priority={'name': get_new_issue_priority(report)}
         )
 
         new_issue_permalink = new_issue.permalink()
