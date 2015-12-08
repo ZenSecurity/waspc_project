@@ -208,6 +208,7 @@ WASPC = {
         'jira': {
             'server': 'https://zensec101.atlassian.net',
             'project': 'IR',
+            'options': {'verify': False},
             'issue_type': 'Task',
             'issues_priority': {
                 'information': 'Lowest',

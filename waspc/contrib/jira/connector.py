@@ -23,7 +23,8 @@ class APIConnector(object):
             basic_auth=(
                 jira_settings['username'],
                 jira_settings['password']
-            )
+            ),
+            options=jira_settings['options']
         )
         self._project = jira_settings['project']
 

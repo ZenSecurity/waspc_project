@@ -17,10 +17,22 @@ class NotificationAdmin(admin.ModelAdmin):
     def module(self, instance):
         return instance.report.report.get('metadata', {}).get('module')
 
-    def broker(self, instance):
-        return instance.report.broker
+    def target(self, instance):
+        return instance.report.report.get('metadata', {}).get('target_url')
 
-    list_display = (id, 'severity', 'module', 'broker', 'modified')
+    def categories(self, instance):
+        categories = []
+        report_data = instance.report.report.get('data')
+        for category in report_data:
+            for severity in report_data[category]:
+                for incident in report_data[category][severity]:
+                    incident_status = incident.get('metadata', {}).get('reporting_status', 'pending')
+                    if incident_status == 'pending' and category not in categories:
+                        categories.append(category)
+
+        return ', '.join(sorted(categories))
+
+    list_display = (id, 'target', 'module', 'categories', 'severity', 'modified')
     search_fields = ('id',)
 
 
