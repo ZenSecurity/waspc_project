@@ -88,8 +88,8 @@ def get_reports_difference(new_report, old_report):
 
     for category in set(old_report_data).difference(new_report_data):
         result_report_data[category] = old_report_data[category]
+        result_report_metadata[category] = old_report_metadata[category]
 
-    #result_report_metadata.update(old_report_metadata)
     result_report_metadata.update(new_report_metadata)
 
     return None if result_report == old_report else result_report
@@ -147,7 +147,12 @@ def update_jira_issues(report):
                         if incident_status == 'done' and not incident_url and severities_values[severity] > issue_priority:
                             issue_priority = severities_values[severity]
 
-            severities_values = {value: key for key, value in severities_values.items()}
+            severities_values = {
+                1: 'information',
+                2: 'low',
+                3: 'medium',
+                4: 'high'
+            }
 
             return issues_priority[severities_values[issue_priority]]
 
