@@ -38,6 +38,7 @@
                     'information': []
                 };
                 this.show_panels = true;
+                this.show_submit_form = true;
                 this.jira_issue_description = '';
 
 
@@ -121,8 +122,6 @@
                         "report": this.report.result
                     };
 
-                    alert('Wait until page refresh');
-
                     $http.put(this.report.url, payload).then(function (response){
                         location.reload();
                     });
@@ -164,7 +163,7 @@
                         "report": this.report.result
                     };
 
-                    alert('Wait until page refresh');
+                    this.show_submit_form = false;
 
                     $http.put(this.report.url, payload).then(function (response){
                         location.reload();
@@ -196,10 +195,6 @@
             });
 
             app.filter('markdown', ['$sce', function($sce) {
-//                return function(input) {
-//                    var converter = new showdown.Converter();
-//                    return $sce.trustAsHtml(converter.makeHtml(input));
-//                }
                 return function(input) {
                     var renderer = new marked.Renderer();
                     renderer.heading = function(text, level) {
@@ -458,7 +453,7 @@
                         </div>
 
                         <div ng-hide="reporting.show_panels">
-                            <form ng-submit="reporting.submit_issue()">
+                            <form ng-submit="reporting.submit_issue()" ng-show="reporting.show_submit_form">
                                 <div class="form-group">
                                     <label for="issueDescription">Submit issue description</label>
                                     <textarea type="text" class="form-control" id="issueDescription" autofocus="autofocus" rows="15" ng-model="reporting.jira_issue_description">{{reporting.jira_issue_description}}</textarea>
@@ -467,6 +462,9 @@
                                 <button type="button" class="btn btn-primary" ng-click="reporting.show_panels = true;">Back</button>
                                 <button type="submit" class="btn btn-primary">Submit</button>
                             </form>
+                            <div class="progress" ng-hide="reporting.show_submit_form">
+                                <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
