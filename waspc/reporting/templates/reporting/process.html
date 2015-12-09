@@ -122,6 +122,8 @@
                         "report": this.report.result
                     };
 
+                    this.show_panels = this.show_submit_form = false;
+
                     $http.put(this.report.url, payload).then(function (response){
                         location.reload();
                     });
