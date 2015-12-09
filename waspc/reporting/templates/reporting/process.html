@@ -128,17 +128,30 @@
                 };
 
                 this.create_issue = function() {
-                    this.jira_issue_description = '';
+                    this.jira_issue_description = `${this.report.url}\n\n\n\n`;
                     for (var severity in this.severity_panels) {
+                        var panel_color = '';
+                        switch (severity) {
+                            case 'information': panel_color='#DDD'; break;
+                            case 'low': panel_color='#BCE8F1'; break;
+                            case 'medium': panel_color='#FAEBCC'; break;
+                            case 'high': panel_color='#EBCCD1'; break;
+                        }
                         for (var panel of this.severity_panels[severity]) {
                             var category_incidents_descriptions = '';
                             for (var incident of panel.incidents) {
                                 if (incident.metadata && incident.metadata.checked) {
-                                    category_incidents_descriptions += `${incident.data}\n`;
+                                    category_incidents_descriptions += `# ${incident.data}\n`;
                                 }
                             }
                             if (category_incidents_descriptions) {
-                                this.jira_issue_description += `${panel.category_name}\n${panel.category_description}\n\n${category_incidents_descriptions}\n\n`;
+                                this.jira_issue_description += `
+{panel:title=${panel.category_name.toUpperCase()} | borderStyle=dashed | borderColor=${panel_color} | titleBGColor=${panel_color} | bgColor=#FFFFFF}
+${category_incidents_descriptions}
+{color:grey}
+${panel.category_description}
+{color}
+{panel}\n\n\n\n`;
                             }
                         }
                     }
