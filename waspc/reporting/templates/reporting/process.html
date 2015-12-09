@@ -28,7 +28,14 @@
                     'id': '{{report.id}}',
                     'broker': '{{report.broker}}',
                     'modified': '{{report.modified}}',
-                    'url': '{{report_url}}'
+                    'report_url': '{{report_url}}',
+                    'process_url': [
+                        window.location.protocol,
+                        '//',
+                        window.location.host,
+                        '/reporting/process/',
+                        '{{report.id}}/'
+                    ].join('')
                 };
 
                 this.severity_panels = {
@@ -124,13 +131,14 @@
 
                     this.show_panels = this.show_submit_form = false;
 
-                    $http.put(this.report.url, payload).then(function (response){
+                    $http.put(this.report.report_url, payload).then(function (response){
                         location.reload();
                     });
                 };
 
                 this.create_issue = function() {
-                    this.jira_issue_description = `${this.report.url}\n\n\n\n`;
+                    var location = window.location;
+                    this.jira_issue_description = `${this.report.process_url}\n\n\n\n`;
                     for (var severity in this.severity_panels) {
                         var panel_color = '';
                         switch (severity) {
@@ -180,7 +188,7 @@ ${panel.category_description}
 
                     this.show_submit_form = false;
 
-                    $http.put(this.report.url, payload).then(function (response){
+                    $http.put(this.report.report_url, payload).then(function (response){
                         location.reload();
                     });
                 };
