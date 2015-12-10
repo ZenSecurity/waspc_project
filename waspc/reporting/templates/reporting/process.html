@@ -137,7 +137,7 @@
                 };
 
                 this.create_issue = function() {
-                    this.jira_issue_description = `*URL*: ${this.report.result.metadata.target_url}\n*Report*: ${this.report.process_url}\n\n\n\n`;
+                    this.jira_issue_description = `*Target*: ${this.report.result.metadata.target_url}\n*Report*: ${this.report.process_url}\n\n\n\n`;
                     for (var severity in this.severity_panels) {
                         var panel_color = '';
                         switch (severity) {
