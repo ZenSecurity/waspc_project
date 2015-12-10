@@ -138,7 +138,7 @@
 
                 this.create_issue = function() {
                     var location = window.location;
-                    this.jira_issue_description = `${this.report.process_url}\n\n\n\n`;
+                    this.jira_issue_description = `*URL*: ${reporting.report.result.metadata.target_url}\n*Report*: ${this.report.process_url}\n\n\n\n`;
                     for (var severity in this.severity_panels) {
                         var panel_color = '';
                         switch (severity) {
