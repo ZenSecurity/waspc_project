@@ -66,12 +66,16 @@ def get_reports_difference(new_report, old_report):
                 result_report_data[category][severity] = {}
                 pair_incidents_indexes = []
                 if severity in old_report_data[category]:
-                    old_report_data[category][severity] = set(dict_to_tuple(incident) for incident in old_report_data[category][severity])
+                    old_report_data[category][severity] = set(
+                        dict_to_tuple(incident) for incident in old_report_data[category][severity]
+                    )
                     old_report_data[category][severity] = sorted(
                         [tuple_to_dict(incident) for incident in old_report_data[category][severity]],
                         key=itemgetter('data')
                     )
-                    new_report_data[category][severity] = set(dict_to_tuple(incident) for incident in new_report_data[category][severity])
+                    new_report_data[category][severity] = set(
+                        dict_to_tuple(incident) for incident in new_report_data[category][severity]
+                    )
                     new_report_data[category][severity] = sorted(
                         [tuple_to_dict(incident) for incident in new_report_data[category][severity]],
                         key=itemgetter('data')
