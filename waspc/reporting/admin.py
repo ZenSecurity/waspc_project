@@ -29,10 +29,12 @@ class NotificationAdmin(admin.ModelAdmin):
                     incident_status = incident.get('metadata', {}).get('reporting_status', 'pending')
                     if incident_status == 'pending' and category not in categories:
                         categories.append(category)
-
         return ', '.join(sorted(categories))
 
-    list_display = (id, 'target', 'module', 'categories', 'severity', 'modified')
+    def broker(self, instance):
+        return instance.report.broker
+
+    list_display = (id, 'target', 'module', 'severity', 'categories', 'modified', 'broker')
     search_fields = ('id',)
 
 
