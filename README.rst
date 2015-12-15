@@ -121,3 +121,5 @@ To run a celery worker:
 .. code-block:: bash
 
     $(venv) python manage.py celery worker -P processes -Q scanner,monitoring -l INFO -B
+    or
+    $(venv) python manage.py celery worker -P processes -Q scanner,monitoring -l INFO -B --concurrency=number_of_processes
