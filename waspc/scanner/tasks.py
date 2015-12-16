@@ -59,6 +59,7 @@ class Scanner(Task):
     def get_report(self):
         return self._report
 
+    @patch('w3af.core.controllers.w3afCore.w3afCore.WORKER_THREADS', settings.WASPC['scanner']['worker_threads'])
     @patch('w3af.core.controllers.core_helpers.target.CoreTarget._verify_url', w3af_core_target_verify_url)
     @patch('w3af.core.data.parsers.parser_cache.dpc', Mock(name='dpc'), create=True)
     @patch('w3af.core.data.parsers.mp_document_parser.mp_doc_parser', Mock(name='mp_doc_parser'), create=True)
