@@ -202,8 +202,8 @@ WASPC = {
         'target_url': 'http://zensecurity.su'
     },
     'monitoring': {
-        'every': 30,
-        'period': 'minutes'
+        'every': 12,
+        'period': 'hours'
     },
     'reporting': {
         'jira': {
