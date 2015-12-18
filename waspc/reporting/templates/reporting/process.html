@@ -141,7 +141,6 @@
                         for (var panel of this.severity_panels[severity]) {
                             for (var incident of panel.incidents) {
                                 if (incident.metadata) {
-                                    incident.metadata.checked = true;
                                     incident.metadata.reporting_status = 'false';
                                 }
                             }
