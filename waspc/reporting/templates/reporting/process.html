@@ -142,6 +142,7 @@
                             for (var incident of panel.incidents) {
                                 if (incident.metadata) {
                                     incident.metadata.reporting_status = 'false';
+                                    delete incident.metadata.checked;
                                 }
                             }
                         }
