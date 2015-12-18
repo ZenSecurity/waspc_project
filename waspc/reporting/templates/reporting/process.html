@@ -293,13 +293,13 @@ ${panel.category_description}
                         Datetime: {{reporting.report.modified}}
                     </li>
                     <li>
-                        <button type="button" class="btn btn-primary btn-lg" ng-click="reporting.show_panels = !reporting.show_panels; reporting.create_issue()" ng-disabled="!reporting.get_all_panels_marked_incidents()">Create Issue</button>
+                        <button type="button" class="btn btn-primary btn-lg" ng-click="reporting.set_false_status()" ng-disabled="!reporting.get_all_panels_marked_incidents()">(Un)Set False</button>
                     </li>
                     <li>
                         <button type="button" class="btn btn-primary btn-lg" ng-click="reporting.set_all_false_status()" ng-disabled="!reporting.show_panels">Set All False</button>
                     </li>
                     <li>
-                        <button type="button" class="btn btn-primary btn-lg" ng-click="reporting.set_false_status()" ng-disabled="!reporting.get_all_panels_marked_incidents()">(Un)Set False</button>
+                        <button type="button" class="btn btn-primary btn-lg" ng-click="reporting.show_panels = !reporting.show_panels; reporting.create_issue()" ng-disabled="!reporting.get_all_panels_marked_incidents()">Create Issue</button>
                     </li>
                 </ul>
             </div>
