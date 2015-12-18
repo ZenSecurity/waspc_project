@@ -136,6 +136,29 @@
                     });
                 };
 
+                this.set_all_false_status = function() {
+                    for (var severity in this.severity_panels) {
+                        for (var panel of this.severity_panels[severity]) {
+                            for (var incident of panel.incidents) {
+                                if (incident.metadata) {
+                                    incident.metadata.checked = true;
+                                    incident.metadata.reporting_status = 'false';
+                                }
+                            }
+                        }
+                    }
+                    var payload = {
+                        "broker": this.report.broker,
+                        "report": this.report.result
+                    };
+
+                    this.show_panels = this.show_submit_form = false;
+
+                    $http.put(this.report.report_url, payload).then(function (response){
+                        location.reload();
+                    });
+                };
+
                 this.create_issue = function() {
                     this.jira_issue_description = `*Target*: ${this.report.result.metadata.target_url}\n*Report*: ${this.report.process_url}\n\n\n\n`;
                     for (var severity in this.severity_panels) {
@@ -275,6 +298,9 @@ ${panel.category_description}
                     </li>
                     <li>
                         <button type="button" class="btn btn-primary btn-lg" ng-click="reporting.set_false_status()" ng-disabled="!reporting.get_all_panels_marked_incidents()">(Un)Set False</button>
+                    </li>
+                    <li>
+                        <button type="button" class="btn btn-primary btn-lg" ng-click="reporting.set_all_false_status()">Set all false</button>
                     </li>
                 </ul>
             </div>
