@@ -18,7 +18,13 @@ class NotificationAdmin(admin.ModelAdmin):
         return instance.report.report.get('metadata', {}).get('module')
 
     def target(self, instance):
-        return instance.report.report.get('metadata', {}).get('target_url')
+        instance_target = instance.report.report.get('metadata', {}).get('target_url')
+        if instance_target.startswith('http'):
+            return format_html(
+                '<a href="{0}" target="_blank">{0}</a>',
+                instance_target
+            )
+        return instance_target
 
     def categories(self, instance):
         categories = []
