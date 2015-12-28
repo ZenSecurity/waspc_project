@@ -89,14 +89,14 @@ class ScannerViewSet(ModelViewSet):
 
             task.forget()
 
-            if ('exc_type' in task_report) and ('exc_message' in task_report):
+            if task_report is None or (('exc_type' in task_report) and ('exc_message' in task_report)):
                 return Response(
                     data={
                         'task_id': task_id,
                         'target_url': task_target_url,
                         'task_result': '{exception_type} - {exception_message}'.format(
-                            exception_type=task_report.get('exc_type'),
-                            exception_message=task_report.get('exc_message')
+                            exception_type=getattr(task_report, 'exc_type', None),
+                            exception_message=getattr(task_report, 'exc_message', None)
                         ),
                         'task_status': 'FAILURE',
                     },

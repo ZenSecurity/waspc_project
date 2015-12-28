@@ -106,7 +106,7 @@
                             if (result_json.task_status == "PENDING") {
                                 var timer_id = setInterval(function() {
                                     var get_scan_results_url = (`${start_scan_url}${result_json.task_id}/`);
-                                    $.get(get_scan_results_url, function(result_json){
+                                    $.get(get_scan_results_url).done(function(result_json) {
                                         if (result_json.task_status == "SUCCESS") {
                                             clearInterval(timer_id);
 
@@ -196,7 +196,8 @@
                                                 }
                                             });
                                         }
-                                        else if (result_json.task_status == "FAILURE") {
+                                    }).fail(function(result) {
+                                        if (result.responseJSON.task_status == "FAILURE") {
                                             clearInterval(timer_id);
                                             progress_bar.addClass("hidden");
                                             scan_status.text(`Scan for ${target_url} has failed.`);
