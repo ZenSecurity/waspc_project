@@ -197,7 +197,7 @@ LOGGING = {
 
 WASPC = {
     'scanner': {
-        'worker_threads': 20,
+        'worker_threads': 2,
         'profile_name': 'wg',
         'target_url': 'http://zensecurity.su'
     },
