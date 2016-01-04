@@ -51,7 +51,9 @@
 
                 this.make_severity_panels = function() {
                     var report = this.report.result;
-                    for (var category in report.data) {
+                    var sorted_categories = Object.keys(report['data']).sort();
+                    for (var category_index in sorted_categories) {
+                        var category = sorted_categories[category_index];
                         for (var severity in report.data[category]) {
                             this.severity_panels[severity].push({
                                 'category_name': category,
