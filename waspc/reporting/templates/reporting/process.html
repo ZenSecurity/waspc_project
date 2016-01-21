@@ -250,7 +250,7 @@ ${panel.category_description}
                     renderer.link = function(href, title, text) {
                         return `<a href="${href}" target="_blank">${href}</a>`;
                     };
-                    return $sce.trustAsHtml(marked(input, { renderer: renderer }));
+                    return $sce.trustAsHtml(marked(input, { renderer: renderer, breaks: true }));
                 }
             }]);
         </script>
