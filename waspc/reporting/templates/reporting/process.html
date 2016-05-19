@@ -143,7 +143,9 @@
                         for (var panel of this.severity_panels[severity]) {
                             for (var incident of panel.incidents) {
                                 if (incident.metadata) {
-                                    incident.metadata.reporting_status = 'false';
+                                    if (incident.metadata.reporting_status === 'pending') {
+                                        incident.metadata.reporting_status = 'false';
+                                    }
                                     delete incident.metadata.checked;
                                 }
                             }
