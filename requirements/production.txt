@@ -4,3 +4,6 @@
 
 # WSGI Handler
 uwsgi
+
+# need to install custom library (SSLyze) for wg_ssl audit plugin support
+https://github.com/ZenSecurity/sslyze/tarball/master#egg=SSLyze
