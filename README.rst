@@ -54,7 +54,7 @@ Create a local PostgreSQL database with granted user
     # OSX, begin
     $(venv) sudo mkdir -p /opt/local/var/db/postgresql95/defaultdb
     $(venv) sudo chown postgres:postgres /opt/local/var/db/postgresql95/defaultdb
-    $(venv) sudo su postgres
+    $(venv) sudo su - postgres
     $(venv) cd ~/defaultdb/
     $(venv) /opt/local/lib/postgresql95/bin/initdb -D /opt/local/var/db/postgresql95/defaultdb
     $(venv) /opt/local/lib/postgresql95/bin/pg_ctl -D /opt/local/var/db/postgresql95/defaultdb -l logfile start
