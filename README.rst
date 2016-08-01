@@ -26,7 +26,7 @@ Install
     $ sudo port install postgresql95-server rabbitmq-server redis py27-pip py27-virtualenv libyaml unzip
     # OSX, end
 
-    $ curl https://github.com/ZenSecurity/waspc_project/archive/master.zip > master.zip
+    $ curl -L https://github.com/ZenSecurity/waspc_project/archive/master.zip > master.zip
     $ unzip master.zip
     $ cd waspc_project-master
 
