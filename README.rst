@@ -19,7 +19,7 @@ Install
 .. code-block:: bash
 
     # Ubuntu, begin
-    $ sudo apt-get install unzip git
+    $ sudo apt-get install git unzip
     # Ubuntu, end
 
     # OSX, begin
