@@ -11,10 +11,11 @@ django-jsonfield
 djangorestframework
 
 # need to install custom library (SSLyze) for wg_ssl audit plugin support
-https://github.com/ZenSecurity/sslyze/tarball/master#egg=SSLyze
+https://github.com/ZenSecurity/sslyze/archive/master.tar.gz#egg=SSLyze
+
             
 # Scanner core
-https://github.com/ZenSecurity/w3af-module/tarball/master#egg=w3af
+https://github.com/ZenSecurity/w3af-module/archive/master.tar.gz#egg=w3af
 
 # For the w3af monkey patching
 mock
