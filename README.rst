@@ -18,16 +18,12 @@ Install
 
 .. code-block:: bash
 
-    # Ubuntu, begin
-    $ sudo apt-get install git unzip
-    # Ubuntu, end
-
     # OSX, begin
-    $ sudo port install git postgresql95-server rabbitmq-server redis py27-pip py27-virtualenv libyaml unzip
+    $ sudo port install git postgresql95-server rabbitmq-server redis py27-pip py27-virtualenv libyaml
     # OSX, end
 
-    $ curl -L https://github.com/ZenSecurity/waspc_project/archive/master.zip > waspc_project-master.zip
-    $ unzip waspc_project-master.zip
+    $ curl -L https://github.com/ZenSecurity/waspc_project/archive/master.tar.gz > waspc_project-master.tar.gz
+    $ tar -zxvf waspc_project-master.tar.gz
     $ cd waspc_project-master
 
     # Ubuntu, begin
