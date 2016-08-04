@@ -10,9 +10,6 @@ django-jsonfield
 # For building rest api
 djangorestframework
 
-# need to install custom library (SSLyze) for wg_ssl audit plugin support
-https://github.com/ZenSecurity/sslyze/archive/master.tar.gz#egg=SSLyze
-            
 # Scanner core
 https://github.com/ZenSecurity/w3af-module/archive/master.tar.gz#egg=w3af
 
