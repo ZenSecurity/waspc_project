@@ -36,8 +36,9 @@ Install
     # Ubuntu, end
 
     # OSX, begin
-    $ virtualenv-2.7 venv --python=`which python2`
+    $ virtualenv-2.7 venv --python=`which python2` --no-setuptools
     $ source venv/bin/activate
+    $ curl https://bootstrap.pypa.io/get-pip.py | python
     $(venv) export PATH="/opt/local/lib/postgresql95/bin/:$PATH" ARCHFLAGS="-arch x86_64" LDFLAGS="-L/opt/local/lib" CFLAGS="-I/opt/local/include"
     $(venv) pip install -r requirements.txt --verbose
     # OSX, end
