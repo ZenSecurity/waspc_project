@@ -21,11 +21,12 @@ virtualenv --version >/dev/null 2>&1 || {
 if [ -z "$VIRTUAL_ENV" ]; then
     echo >&2 -e "\nYou need activate a virtualenv first"
     echo >&2 -e 'If you do not have a virtualenv created, run the following command to create and automatically activate a new virtualenv named "venv" on current folder:\n'
-    echo >&2 -e "virtualenv venv --python=\`which python2\`"
+    echo >&2 -e "virtualenv venv --python=\`which python2\` --no-setuptools"
     echo >&2 -e "\nTo leave/disable the currently active virtualenv, run the following command:\n"
     echo >&2  "deactivate"
     echo >&2 -e "\nTo activate the virtualenv again, run the following command:\n"
     echo >&2  "source venv/bin/activate"
+    echo >&2  "curl https://bootstrap.pypa.io/get-pip.py | python"
     echo >&2 -e "\nFor more information, see virtualenv documentation: https://virtualenv.pypa.io/en/latest/"
     echo >&2 -e "\n"
     exit 1;
