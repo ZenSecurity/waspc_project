@@ -52,11 +52,11 @@ Create a local PostgreSQL database with granted user
     $(venv) sudo mkdir -p /opt/local/var/db/postgresql95/defaultdb
     $(venv) sudo chown postgres:postgres /opt/local/var/db/postgresql95/defaultdb
     $(venv) sudo su - postgres
-    $(venv) cd ~/defaultdb/
-    $(venv) /opt/local/lib/postgresql95/bin/initdb -D /opt/local/var/db/postgresql95/defaultdb
-    $(venv) /opt/local/lib/postgresql95/bin/pg_ctl -D /opt/local/var/db/postgresql95/defaultdb -l logfile start
-    $(venv) export PATH="/opt/local/lib/postgresql95/bin/:$PATH"
-    $(venv) exit
+    $ cd ~/defaultdb/
+    $ export PATH="/opt/local/lib/postgresql95/bin/:$PATH"
+    $ initdb -D /opt/local/var/db/postgresql95/defaultdb
+    $ pg_ctl -D /opt/local/var/db/postgresql95/defaultdb -l logfile start
+    $ exit
     $(venv) ./flushdb.sh
     # OSX, end
 
