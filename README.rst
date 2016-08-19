@@ -116,3 +116,4 @@ You can now run your instance with help of supervisord:
 
 .. code-block:: bash
     $(venv) supervisord -c supervisord.conf
+
