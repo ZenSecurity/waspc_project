@@ -24,6 +24,3 @@ redis
 
 # For interacting with JIRA via REST APIs
 jira
-
-# Need to daemonizing project
-supervisor

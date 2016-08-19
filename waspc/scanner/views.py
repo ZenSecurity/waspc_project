@@ -1,5 +1,6 @@
 from .models import Report
 from .serializers import ScannerSerializer
+from celery.result import states as celery_states
 from config.celery import waspc_celery
 from django.http import HttpResponseNotFound
 from django.views.generic import TemplateView
@@ -71,49 +72,63 @@ class ScannerViewSet(ModelViewSet):
 
     def retrieve(self, request, *args, **kwargs):
         task_id = kwargs.get('pk')
-        task = waspc_celery.AsyncResult(task_id)
-        task_status = task.status
 
-        if task_status in ('STARTED', 'PENDING'):
+        if Report.objects.filter(id=task_id).exists():
+            report = Report.objects.get(id=task_id)
             return Response(
                 data={
-                    'task_id': task_id,
-                    'task_status': task_status
+                    'task_id': report.id,
+                    'task_status': celery_states.SUCCESS,
+                    'task_result': report.result,
+                    'task_finished': report.modified
                 },
-                status=HTTP_202_ACCEPTED
+                status=HTTP_200_OK
             )
         else:
-            task_result = task.result
-            task_report = task_result.get('report')
-            task_target_url = task_result.get('target_url')
+            task = waspc_celery.AsyncResult(task_id)
+            task_status = task.status
 
-            task.forget()
-
-            if task_report is None or (('exc_type' in task_report) and ('exc_message' in task_report)):
+            if task_status in ('STARTED', 'PENDING'):
                 return Response(
                     data={
                         'task_id': task_id,
-                        'target_url': task_target_url,
-                        'task_result': '{exception_type} - {exception_message}'.format(
-                            exception_type=getattr(task_report, 'exc_type', None),
-                            exception_message=getattr(task_report, 'exc_message', None)
-                        ),
-                        'task_status': 'FAILURE',
+                        'task_status': task_status
                     },
-                    status=HTTP_500_INTERNAL_SERVER_ERROR
+                    status=HTTP_202_ACCEPTED
                 )
             else:
+                task_result = task.result
+                task_report = task_result.get('report')
+                task_target_url = task_result.get('target_url')
+
+                task.forget()
+
                 scan_report = Report.objects.create(
+                    pk=task_id,
                     target_url=task_target_url,
                     result=task_report
                 )
 
-                return Response(
-                    data={
-                        'task_id': task_id,
-                        'task_status': task_status,
-                        'task_result': task_report,
-                        'task_finished': scan_report.modified
-                    },
-                    status=HTTP_200_OK
-                )
+                if task_report is None or (('exc_type' in task_report) and ('exc_message' in task_report)):
+                    return Response(
+                        data={
+                            'task_id': task_id,
+                            'target_url': task_target_url,
+                            'task_result': '{exception_type} - {exception_message}'.format(
+                                exception_type=getattr(task_report, 'exc_type', None),
+                                exception_message=getattr(task_report, 'exc_message', None)
+                            ),
+                            'task_status': celery_states.FAILURE,
+                        },
+                        status=HTTP_500_INTERNAL_SERVER_ERROR
+                    )
+                else:
+                    return Response(
+                        data={
+                            'task_id': task_id,
+                            'task_status': task_status,
+                            'task_result': task_report,
+                            'task_finished': scan_report.modified
+                        },
+                        status=HTTP_200_OK
+                    )

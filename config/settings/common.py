@@ -179,7 +179,7 @@ LOGGING = {
         'file': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
-            'filename': 'waspc_requests.log',
+            'filename': 'api_requests.log',
         },
     },
     'loggers': {
@@ -199,7 +199,7 @@ WASPC = {
     'scanner': {
         'worker_threads': 2,
         'profile_name': 'wg',
-        'target_url': 'http://zensecurity.su'
+        'target_url': 'http://www.zensecurity.su'
     },
     'monitoring': {
         'every': 12,
