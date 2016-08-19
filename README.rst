@@ -13,8 +13,8 @@ The steps below will get you up and running with a local development environment
 * Redis
 
 
-Install
-^^^^^^^
+Install packages
+^^^^^^^^^^^^^^^^
 
 .. code-block:: bash
 
@@ -83,6 +83,10 @@ Start Redis server
     # OSX, begin
     $(venv) sudo port load redis
     # OSX, end
+
+
+Instance setup
+^^^^^^^^^^^^^^^^
 
 Run ``migrate`` on your new database
 
