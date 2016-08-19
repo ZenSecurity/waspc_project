@@ -5,8 +5,6 @@ OS=`uname`
 if [[ $OS == Darwin ]]; then
     shopt -s expand_aliases
     alias psql="psql95 -U postgres"
-else
-    alias psql="psql -U postgres"
 fi
 
 echo -e "\n[ Creating template for unicode databases ]"
