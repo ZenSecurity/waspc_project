@@ -115,6 +115,7 @@ Launch
 You can now run your instance with help of supervisord:
 
 .. code-block:: bash
+
     $(venv) supervisord -c supervisord.conf
 
 Now you need to setup your nginx. Basic example you can see in ``waspc.nginx.conf``.
