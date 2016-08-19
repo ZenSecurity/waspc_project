@@ -110,14 +110,9 @@ You can now run the ``runserver`` command
 
 Open up your browser to http://127.0.0.1:8000/ to see the waspc running locally.
 
-Celery
+Launch
 ^^^^^^
-This app comes with Celery.
-
-To run a celery worker:
+You can now run your instance with help of supervisord:
 
 .. code-block:: bash
-
-    $(venv) python manage.py celery worker -P processes -Q scanner,monitoring -l INFO -B
-    or
-    $(venv) python manage.py celery worker -P processes -Q scanner,monitoring -l INFO -B --concurrency=number_of_processes
+    $(venv) supervisord -c supervisord.conf
