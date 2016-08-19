@@ -102,13 +102,6 @@ To create an **superuser account**, use this command
 
     $(venv) python manage.py createsuperuser
 
-You can now run the ``runserver`` command
-
-.. code-block:: bash
-
-    $(venv) python manage.py runserver
-
-Open up your browser to http://127.0.0.1:8000/ to see the waspc running locally.
 
 Launch
 ^^^^^^
