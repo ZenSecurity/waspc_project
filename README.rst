@@ -112,10 +112,10 @@ Open up your browser to http://127.0.0.1:8000/ to see the waspc running locally.
 
 Launch
 ^^^^^^
-You can now run your instance with help of supervisord:
+Now you can run your instance with help of supervisord:
 
 .. code-block:: bash
 
     $(venv) supervisord -c supervisord.conf
 
-Now you need to setup your nginx. Basic example you can see in ``waspc.nginx.conf``.
+Further, you need to setup your nginx config. Basic example you can see in ``waspc.nginx.conf``.
