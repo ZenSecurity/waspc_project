@@ -98,7 +98,7 @@ class ScannerViewSet(ModelViewSet):
                 )
             else:
                 task_result = task.result
-                task_report = task_result.get('report')
+                task_report = task_result.get('report') or {}
                 task_target_url = task_result.get('target_url')
 
                 task.forget()
