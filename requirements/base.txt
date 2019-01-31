@@ -1,5 +1,5 @@
 # Django framework
-django==1.8.5
+django>=1.11.18
 
 # For periodic tasks
 django-celery==3.1.16
